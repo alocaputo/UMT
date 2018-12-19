@@ -1,0 +1,38 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+<h1>Lists</h1>
+<div class="row">
+  <form action="{% url 'movtra:newList' %}" method="post">
+    {% csrf_token %}
+    <div class="col s6">
+      <input type="text" name="listTitle"><button type="submit" vaule="Create list" class="waves-effect waves-light btn">Create list</button>
+    </div>
+  </form>
+  <form action="{% url 'movtra:editLists' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" name="edit" value="edit">
+</form>
+</div>
+<div class="row">
+  <ul style="list-style-type:none">
+    {% for l in list %}
+    --------------------------------------- 
+    <li data-label="Name"><a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+<style>
+  td {
+    height: 20px;
+  }
+  form {
+    background: #f8f8f8;
+    border: 0px;
+    margin: .5rem;
+    padding: 0.75rem 0.5rem 1.125rem;
+    height: 30px;
+  }
+
+</style>
+{% endblock %}

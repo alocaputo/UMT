@@ -1,0 +1,73 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+<h1 class="center">{{ list.name }}  ({{ watched }}/{{ total }})</h1>
+
+<div class="row">
+  <div class="col s6">
+    <form action="{% url 'movtra:addToList' list.id %}" method="post">
+      {% csrf_token %}
+      <input type="text" name="listTitle">
+      <button type="submit" vaule="Add Title" class="waves-effect waves-light btn">Add Title</button>
+    </form>
+  </div>
+  <form action="{% url 'movtra:importList' list.id %}" method="post">
+    {% csrf_token %}
+    <input type="submit" name="import" value="import">
+  </form>
+  <form action="{% url 'movtra:editList' list.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" name="edit" value="edit">
+  </form>
+</div>
+
+
+
+<ul>
+{% for m in movies %}
+------------------------------------------------------------------------
+  <li>{{forloop.counter}}: <a href="{% url 'movtra:detail' m.movie.id %}">{{m.movie.title}} ({{ m.movie.release_date|make_list|slice:':-6'|join:'' }})</a> 
+    {% if m.movie in logentry %}
+    watched
+    {% endif %}
+    </p>
+  </li>
+  {% if m.log_id %}
+  m.log_id
+  {% endif %}
+  <!--
+  <div>
+    <form action="{% url 'movtra:removeMovieFromList' m.id %}" method="post">{% csrf_token %}
+    <input type="submit" name="remove" value="Remove">
+    <input type="hidden" name="removeID" vale="{{m.id}}"></form>
+</div>-->
+{% endfor %}
+
+</ul>
+
+<script>
+  // Submit post on submit
+$('#seenForm').click( function(event){
+    //event.preventDefault();
+    console.log("form submitted!")  // sanity check
+    var flag = $('#seenBool').val()
+    var res = false;
+    if(flag === 'True'){
+      res = true;
+    }
+    //console.log($('#seenBool').val())
+    create_post(res);
+});
+/*
+$('#check').on('change', function() {
+    var val = this.checked ? this.value : '';
+    $('#show').html(val);
+});
+*/
+// AJAX for posting
+function create_post(val) {
+    console.log("create post is working!") // sanity check
+    console.log(val)
+};
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+<head>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+</head>
+
+<title>movTra</title><!--
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!--<div class="row card-panel teal lighten-2">
+	<h1 class="col s3"><a href="/movtra"><span class="black-text">movTra</a></h1>
+	<h1 class="col s3"><a href="/movtra/lists"><span class="black-text">Lists</a></h1>
+	<div class="col s6 card-panel red lighten-2">
+		<form action="{% url 'movtra:results' %}" method="post">
+			{% csrf_token %}
+			<input type="text" name="searchTitle" ><br>
+			<input type="hidden" name="Search" value="Search" >
+		</form>
+	</div>
+</div>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+<!--<nav>
+	<div class="nav-wrapper">
+		<a href="/movtra" class="brand-logo right black-text">movTra</a>
+		<ul id="nav-mobile" class="left hide-on-med-and-down">
+			<li><a href="/movtra/lists"><span class="black-text">Lists</a></li>
+			<li><form action="{% url 'movtra:results' %}" method="post">
+			{% csrf_token %}
+			<div class="input-field">
+			<input type="search" name="searchTitle" id="search" required>
+			<label class="label-icon" for="search"><i class="material-icons">
+			<i class="material-icons"></i>
+			<input type="hidden" name="Search" value="Search" >
+		</div>
+		</form></li>
+	</div>
+</nav>-->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+ <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+ 
+<div class="navbar-fixed ">
+  <nav>
+    <div class="nav-wrapper blue-grey">
+      <a href="/movtra" class="brand-logo center" style="text-decoration:none">movTra</a>
+      <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+      <ul class="left hide-on-med-and-down">
+          <li><a href="/all">All</a></li>
+      <li><a href="/movtra/lists">Lists</a></li>
+      <li><a href="/upcoming">Upcoming</a></li>
+      <li><a href="/nowplaying">Now Playing</a></li>
+      </ul>
+       <form class="right hide-on-med-and-down" id="form1" action="{% url 'movtra:results' %}" method="post" >
+       	{% csrf_token %}
+        <div class="input-field" style="max-width: 400pt;">
+          <input id="search" name="searchTitle" type="search" required onkeyup="getBlogs(this.value,0);">
+          <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+          <i class="material-icons">close</i>
+          <div id="searchResults" ></div>
+        </div>
+      </form>
+       <ul class="side-nav" id="mobile-demo">
+         <li><a href="signup.php" >Sign Up</a></li>
+      <li><a href="login.php" >Login</a></li>
+       <li><a href="conactUs.php" >Contact Us</a></li>
+       <li class="search"> <div class="search-wrapper card input-field">
+          <input type="search" required onkeyup="getBlogs(this.value,1);">
+          <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+          <i class="material-icons">close</i>
+          <div id="searchResults2"></div>
+        </div></li>
+       </ul>
+      </div>
+      </nav>
+      </div>
+
+{% block content %}
+{% endblock %}
+
+<style type="text/css">
+
+.card-content{
+  height: 75px;
+  overflow: hidden;
+}
+
+.card-title{
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+#form1{
+  margin-left:200px;
+}
+.side-nav li a {
+  text-decoration:none;
+}
+#searchResults2{
+  background-color:#666666;
+}
+#searchResults{
+  background-color:#666666;
+}
+.right li a{
+  padding-right:2em;
+  text-decoration:none
+}
+</style>

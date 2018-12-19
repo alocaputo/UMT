@@ -1,0 +1,29 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+{% if search %}
+  <h1>Results</h1>
+{% endif %}
+
+<div class="row">
+		{% for movie in results %}
+
+			<div class="col-sm-2">
+          <a href="{% url 'movtra:resDetail' movie.id %}">
+      <div class="card">
+          
+          <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}" height="40%">
+          
+        
+        <div class="section darker">
+            <span class="card-title">{{ movie.release_date|slice:"0:4" }}</span>
+          <p>{{movie.title}}</p>
+        </div>
+   
+      </div></a>
+    </div>
+		{% endfor %}
+</div>
+
+
+{% endblock %}

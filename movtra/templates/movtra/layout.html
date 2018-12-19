@@ -1,0 +1,62 @@
+<head>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  <link rel="stylesheet" href="https://gitcdn.link/repo/Chalarangelo/mini.css/master/dist/mini-default.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<title>movTra</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<header>
+  <a href="/" class="logo">movTra</a>
+  <span>|</span>
+  <a href="/all" class="button">All</a>
+  <a href="/lists" class="button">Lists</a>
+
+  <a href="/upcoming" class="button">Upcoming</a>
+  <a href="/nowplaying" class="button">Now Playing</a>
+
+
+<form  id="form1" action="{% url 'movtra:results' %}" method="post" >
+       	{% csrf_token %}
+        
+          <input id="search" name="searchTitle" type="text" placeholder="Search"></input>
+ 
+      </form>
+     
+    </header>
+{% block content %}
+{% endblock %}
+<style type="text/css">
+
+.card{
+  margin: .1rem;
+}
+#search{
+  position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.card-title{
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+#form1{
+  margin-left:200px;
+}
+.side-nav li a {
+  text-decoration:none;
+}
+#searchResults2{
+  background-color:#666666;
+}
+#searchResults{
+  background-color:#666666;
+}
+.right li a{
+  padding-right:2em;
+  text-decoration:none
+}
+</style>

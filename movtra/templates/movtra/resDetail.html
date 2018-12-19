@@ -1,0 +1,36 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col-sm-2">
+		<fieldset>
+<h3>{{ movie.title }} ({{ movie.release_date|make_list|slice:':-6'|join:'' }})</h1>
+	<img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}" height="50%" />
+	<p>Director: {{movie.director}}</p>
+	<p>Runtime:  {{movie.runtime}}</p>
+	<p>Generes: {%for g in genres%}{{g}} {% endfor%}</p>
+	<p>Release date: {{movie.release_date}}</p>
+</fieldset>
+</div>
+<div class="col-sm-6">
+	<p>{{ movie.overview }}</p>
+</div>
+<div class="col-sm-3 ">
+			<form action="{% url 'movtra:add' %}" method="post">{% csrf_token %}
+			<input type="hidden" name="tmdbID" value="{{movie.id}}">
+	<input type="submit" value="Add" ></li>
+	</form>
+</div>
+
+<style>
+img{
+	height: 300px;
+}
+form {
+    background: #f8f8f8;
+    border: 0px;
+    margin: .5rem;
+    padding: 0.75rem 0.5rem 1.125rem;
+}
+</style>
+{% endblock %}

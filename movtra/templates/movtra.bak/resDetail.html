@@ -1,0 +1,29 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col s4">
+<h3>{{ movie.title }} ({{ movie.year }})</h1>
+	<img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster }}" height="50%" />
+	<p>Director: {{movie.director}}</p>
+	<p>Runtime:  {{movie.runtime}}</p>
+	<p>Generes: {{movie.genres|make_list|slice:':-2'|join:''}}</p>
+</div>
+<div class="col s8">
+	<p>{{ movie.overview }}</p>
+	<div class="switch" >
+			
+	
+
+			<form action="{% url 'movtra:add' %}" method="post">{% csrf_token %}
+<p>
+			<input type="hidden" name="tmdbID" value="{{movie.tmdbID}}">
+		Seen?: 
+		<label>
+			<input class="filled-in checkbox-orange" type="checkbox" id="add" name="add" checked><span class="lever" /></label>
+		</p>
+	</div>
+	<input type="submit" value="Add" ></li>
+	</form>
+</div>
+{% endblock %}
