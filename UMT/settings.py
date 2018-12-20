@@ -38,7 +38,6 @@ ALLOWED_HOSTS = ['127.0.0.1','192.168.1.222']
 
 INSTALLED_APPS = [
     'movtra.apps.MovtraConfig',
-    'background_task',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
