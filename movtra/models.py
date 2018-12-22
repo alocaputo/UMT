@@ -295,7 +295,8 @@ class LogEntry(models.Model):
 		newLogEntry.movie = Movie.objects.get(id=data['tmdbID'])
 		if data['date'] != '':
 			newLogEntry.date = data['date']
-		newLogEntry.rating = data['rating']
+		if data['rating'] != '':
+			newLogEntry.rating = float(data['rating'])
 		newLogEntry.review = data['review']
 		newLogEntry.save()
 		return newLogEntry.movie.id

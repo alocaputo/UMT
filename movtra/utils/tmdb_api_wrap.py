@@ -6,6 +6,8 @@ import pprint
 import csv
 import codecs
 import tempfile
+import sqlite3
+from datetime import datetime
 import urllib.request
 import os
 from os.path import join, dirname
@@ -175,11 +177,74 @@ def getPersonByID(personID):
 	
 	return person_info
 
+def searchByYear(title, year):
+	url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey +'&query=' + title + '&year=' + year
+	json_r = requests.get(url).json()
+	results = json_r['results']
+	#pprint.pprint(results)
+	return results
+
+def letterboxdImport(file):
+	ids = []
+	firstline = True
+	i = 1
+	with codecs.open(file, "r", encoding='utf-8', errors='ignore') as csvfile:
+		readCSV = csv.reader(csvfile, delimiter=',')
+		for row in readCSV:
+			if firstline:
+				firstline = False
+				continue
+			#res.append(row[1])
+			#movie = getMovieByImdbID(row[1])
+			#res.append(movie)
+			title = row[1]
+			year = row[2]
+			date = row[0]
+			rating=row[4]
+			movie = searchByYear(title,year)[0]
+			print("{}: {}".format(i,movie['id']))
+			addToDB(movie['id'])
+			i=i+1
+	return ids
+
+def addToDB(movieID):
+	addRe = 'INSERT OR IGNORE INTO movtra_movie VALUES (%d,"%s", %d, %d, "%s", "%s", "%s", "%s","%s",%d,"%s","%s","%s",%d,%d,"%s","%s","%s","%s",%f,%d,"%s")'
+	movie = getMovieByID(movieID)
+	#pprint.pprint(movie)
+	conn = sqlite3.connect('/home/theloca95/UMT/db.sqlite3')
+	conn.execute(addRe % (int(movie['id']),
+                          movie['adult'],
+                          0,
+                          int(movie['budget']),
+                          movie['homepage'],
+                          movie['imdb_id'],
+                          movie['original_language'],
+                          movie['original_title'],
+                          movie['overview'], 
+                          int(movie['popularity']),
+                          movie['backdrop_path'],
+                          movie['poster_path'],
+                          movie['release_date'],
+                          int(movie['revenue']),
+                          int(movie['runtime']),
+                          movie['status'],
+                          movie['tagline'],
+                          movie['title'],
+                          movie['video'],
+                          float(movie['vote_average']),
+                          int(movie['vote_count']),
+                          "11-12-2012")
+                )
+	conn.commit()
+	return None
+
 if __name__ == "__main__":
 	#getMovieByName('psycho')
 	#getUpcoming()
 	#getMovieByID(550)
-	getPersonByID(7467)
+	#getPersonByID(7467)
+	#letterboxdImport("/home/theloca95/letterbox/diary.csv")
+	addToDB(21)
 	print('done')
 	#m = getMovieByID('399407')
 	#getMovieByName('Report')

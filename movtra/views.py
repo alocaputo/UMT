@@ -4,7 +4,8 @@ from django.urls import reverse
 from .models import Movie, List, isIn, Genres, isGenre, Person, WorkedAsCast, WorkedAsCrew, Company, Produce, Country, ProductionCountry, Language, SpokenLanguage, LogEntry
 from .utils import tmdb_api_wrap
 import pprint
-from background_task import background
+import csv
+import codecs
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core import serializers
@@ -233,7 +234,7 @@ def listDetail(request, id):
 	return render(request, 'movtra/listDetail.html', context)
 
 def importList(request, id):
-	movies = tmdb_api_wrap.importImdb('./movtra/utils/10.csv')
+	"""movies = tmdb_api_wrap.importImdb('./movtra/utils/10.csv')
 	i=0
 	for movie in movies:
 		tmdbID = tmdb_api_wrap.getMovieByImdbID(movie)['id']
@@ -244,8 +245,35 @@ def importList(request, id):
 		except IntegrityError:
 			print(str(i) + ': ' + str(tmdbID) + ' duplicate')
 		print(str(i) + ': ' + str(tmdbID) + ' added')
+	return HttpResponseRedirect('../')"""
+	letterboxdImport("/home/theloca95/letterbox/diary.csv")
 	return HttpResponseRedirect('../')
 
+def letterboxdImport(file):
+	ids = []
+	p=0
+	firstline = True
+	i = 1
+	with codecs.open(file, "r", encoding='utf-8', errors='ignore') as csvfile:
+		readCSV = csv.reader(csvfile, delimiter=',')
+		for row in readCSV:
+			if firstline:
+				firstline = False
+				continue
+			#res.append(row[1])
+			#movie = getMovieByImdbID(row[1])
+			#res.append(movie)
+			title = row[1]
+			year = row[2]
+			date = row[-1]
+			rating=row[4]
+			movie = tmdb_api_wrap.searchByYear(title,year)[0]
+			print("{}: {}".format(i,movie['id']))
+			addMovie(movie['id'])
+			data = {'tmdbID': movie['id'], 'date': date , 'rating': rating, 'review': ''}
+			LogEntry.addLogEntry(data)
+			i=i+1
+	return ids
 def newList(request):
 	context = {}
 	if request.method == 'POST':
