@@ -20,3 +20,9 @@ movTra is a self hosted movie tracking software written in python using django a
 * Import/Export
 * Person pages
 * Statistics
+--
+## tvTra
+--
+## bookTra
+--
+## gameTra
