@@ -4,11 +4,11 @@
 {% if search %}
   <h1>Results</h1>
 {% endif %}
-
+<!--
 <div class="row">
 		{% for movie in results %}
 
-			<div class="col-sm-2">
+			<div class="col-sm-1">
           <a href="{% url 'movtra:resDetail' movie.id %}">
       <div class="card">
           
@@ -17,13 +17,28 @@
         
         <div class="section darker">
             <span class="card-title">{{ movie.release_date|slice:"0:4" }}</span>
-          <p>{{movie.title}}</p>
+          <p>{{movie.title|truncatechars:14}}</p>
         </div>
    
       </div></a>
     </div>
 		{% endfor %}
 </div>
-
+-->
+<div class="container">
+    <div class="col-sm">
+        {% for movie in results %}
+        <div class="row">
+            <div class="col-sm-4">
+                <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}" height="40%">
+           </div>
+          <div class="col-sm-8">
+              <a href="{% url 'movtra:resDetail' movie.id %}">
+                  <p>{{movie.title}}</p>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
 
 {% endblock %}

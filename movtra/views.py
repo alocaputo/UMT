@@ -9,6 +9,7 @@ import codecs
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core import serializers
+import json
 # Create your views here.
 
 def index(request):
@@ -177,6 +178,7 @@ def addMovie(tmdbID):
 			old = 0
 			credits = movie['credits']
 			print('cast: {}'.format(len(credits['cast'])))
+			"""
 			for personData in credits['cast']:
 					try:
 							person = Person.objects.get(pk=personData['id'])
@@ -200,6 +202,7 @@ def addMovie(tmdbID):
 							new+=1
 					WorkedAsCrew.addPersonToCrew(personData, tmdbID)
 			print('new: {}, old:{}'.format(new,old))
+			"""
 		except Exception as e:
 			print("orco can")
 			print(e)
@@ -311,6 +314,11 @@ def editList(request, id):
 	listID = List.objects.get(id=id)
 
 	movies = isIn.objects.filter(list=listID).order_by('id')
+	movieIDs = []
+	wmovieIDs = []
+	for m in movies:
+		movieIDs.append(m.movie.id)
+	
 	if not movies.exists:
 		#watched_count = len(isIn.objects.filter(list=list).filter(movie__status_watched=True))
 		watched_count = 0
@@ -320,12 +328,15 @@ def editList(request, id):
 		#watched_count = Movie.objects.raw('select movtra_movie.*, movtra_logentry.date from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id order by date desc;')
 		w=0
 		for wc in watched_count:
+			wmovieIDs.append(wc.id)
 			w+=1
-		
+
 	#print(watched_count)
-	context = {'movies': movies, 'list': listID ,'total':len(movies), 'watched': len(list(watched_count)), 'logentry': list(watched_count)}
-	#return render(request, 'movtra/editList.html', context))
-	return JsonResponse(context)
+	#context = {'movies': movieIDs, 'list': id ,'total':len(movieIDs), 'watched': w, 'logentry': list(watched_count)}
+	context = {'movies': movieIDs, 'list': id ,'total':len(movieIDs), 'watched': w, 'logentry': wmovieIDs}
+	#return render(request, 'movtra/editList.html', context)
+	return JsonResponse(context,safe=False)
+	#return HttpResponse(json.dumps(context))
 
 def editLists(request):
 	context = {}
