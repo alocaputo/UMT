@@ -314,10 +314,14 @@ def editList(request, id):
 	listID = List.objects.get(id=id)
 
 	movies = isIn.objects.filter(list=listID).order_by('id')
+	movs = {}
 	movieIDs = []
 	wmovieIDs = []
+	i=0
 	for m in movies:
-		movieIDs.append(m.movie.id)
+		#movieIDs.append(m.movie.id)
+		movs[i] = {'id': m.movie.id, 'title': m.movie.title, 'year': str(m.movie.release_date)[:4]}
+		i+=1
 	
 	if not movies.exists:
 		#watched_count = len(isIn.objects.filter(list=list).filter(movie__status_watched=True))
@@ -333,9 +337,9 @@ def editList(request, id):
 
 	#print(watched_count)
 	#context = {'movies': movieIDs, 'list': id ,'total':len(movieIDs), 'watched': w, 'logentry': list(watched_count)}
-	context = {'movies': movieIDs, 'list': id ,'total':len(movieIDs), 'watched': w, 'logentry': wmovieIDs}
-	#return render(request, 'movtra/editList.html', context)
-	return JsonResponse(context,safe=False)
+	context = {'movies': movs, 'list': id ,'total':i, 'watched': w, 'logentry': wmovieIDs}
+	return render(request, 'movtra/editList.html', context)
+	#return JsonResponse(context)
 	#return HttpResponse(json.dumps(context))
 
 def editLists(request):
