@@ -90,6 +90,14 @@ def resDetail(request, tmdbID):
 	movie = tmdb_api_wrap.getMovieByID(tmdbID)
 	genres=movie['genres']
 	pprint.pprint(genres)
+	#crew=movie['crew']
+	directors = {}
+	dID=0
+	for p in movie['credits']['crew']:
+		if p['job'] == 'Director':
+			directors[dID] = p['name']
+			dID+=1
+	print(directors)
 	g = []
 	for gen in genres:
 		g.append(gen['name'])
@@ -98,9 +106,9 @@ def resDetail(request, tmdbID):
 	except Movie.DoesNotExist:
 		mov = None	
 	if mov is None:
-		return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g })
+		return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g, 'directors': directors })
 	else:
-		return render(request, 'movtra/detail.html', {'movie': mov, 'genres': g})
+		return render(request, 'movtra/detail.html', {'movie': mov, 'genres': g, 'directors': directors})
 	
 
 def add(request):

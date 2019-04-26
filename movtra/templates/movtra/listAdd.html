@@ -9,7 +9,7 @@
 			<div class="col s2">
       <div class="card">
         <div class="card-image">
-          <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}" height="40%">
+          <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}">
           <span class="card-title">{{ movie.release_date|slice:"0:4" }}</span>
         </div>
         <div class="card-content">
@@ -28,4 +28,14 @@
     </div>
 		{% endfor %}
 </div>
+
+<style>
+    .card{
+      min-height: 50px;
+    }
+    img{
+      width: 250px;
+    }
+  
+    </style>
 {% endblock %}

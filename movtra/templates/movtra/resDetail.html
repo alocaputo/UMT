@@ -6,7 +6,11 @@
 		<fieldset>
 <h3>{{ movie.title }} ({{ movie.release_date|make_list|slice:':-6'|join:'' }})</h1>
 	<img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}" height="50%" />
-	<p>Director: {{movie.director}}</p>
+	<p>Director: 
+		{% for k, v in directors.items %}
+		{{v}}
+		{% endfor %}
+	</p>
 	<p>Runtime:  {{movie.runtime}}</p>
 	<p>Generes: {%for g in genres%}{{g}} {% endfor%}</p>
 	<p>Release date: {{movie.release_date}}</p>
