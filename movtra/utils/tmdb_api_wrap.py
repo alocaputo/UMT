@@ -131,7 +131,7 @@ def importTest():
 		print('sadasd')
 
 def getPersonID(name):
-	url = 'http://api.tmdb.org/3/search/person?api_key=88b9df7c1eb6689e78cf9b5ec24a0c1e&query=quentin%20tarantino'
+	url = 'http://api.tmdb.org/3/search/person?api_key='+apikey+'&query=quentin%20tarantino'
 	return True
 
 def getFilmography(personID):

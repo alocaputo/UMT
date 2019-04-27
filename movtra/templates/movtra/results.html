@@ -28,15 +28,15 @@
 <div class="container">
     <div class="col-sm">
         {% for movie in results %}
-        <div class="row">
+        <a href="{% url 'movtra:resDetail' movie.id %}"><div class="row">
             <div class="col-sm-4">
                 <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}">
            </div>
           <div class="col-sm-4">
-              <a href="{% url 'movtra:resDetail' movie.id %}">
-                  <p>{{movie.title}}</p></a>
+              
+                  <p>{{movie.title}}</p>
           </div>
-        </div>
+        </div></a>
         {% endfor %}
     </div>
   </div>

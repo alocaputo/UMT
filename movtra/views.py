@@ -106,7 +106,8 @@ def resDetail(request, tmdbID):
 	except Movie.DoesNotExist:
 		mov = None	
 	if mov is None:
-		return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g, 'directors': directors })
+		#return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g, 'directors': directors })
+		return render(request, 'movtra/resDetail.html',  {'movie': movie, 'isIn': None, 'genres': g, 'directors' : directors, 'diary': None})
 	else:
 		return render(request, 'movtra/detail.html', {'movie': mov, 'genres': g, 'directors': directors})
 	
