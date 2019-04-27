@@ -377,7 +377,6 @@ def removeList(request, id):
 
 def removeMovieFromList(request, id, tmdbID):
 	if request.method == 'POST':
-		tmdbID = request.POST.get('tmdbID')
 		print(id)
 		print(tmdbID)
 		print(isIn.objects.filter(list_id=id).filter(movie_id=tmdbID))
@@ -385,6 +384,16 @@ def removeMovieFromList(request, id, tmdbID):
 
 	isIn.objects.filter(list_id=id).filter(movie_id=tmdbID).delete()
 	return redirect(request.META['HTTP_REFERER'])
+
+def removeMovieFromListGET(request):
+	if request.method == 'GET':
+		movieID = request.GET['movie_id']
+		listID = request.GET['list_id']
+		isIn.objects.filter(list_id=listID).filter(movie_id=movieID).delete()
+		return HttpResponse("Success!")
+	else:
+		print("nope")
+		return HttpResponse("Request method is not a GET")
 
 def removeDiaryEntry(request, tmdbID, diaryID):
 	LogEntry.objects.filter(id=diaryID).delete()

@@ -25,6 +25,7 @@
 
 <ul>
 {% for k, v in movies.items %}
+<div id="movie{{v.id}}">
 ------------------------------------------------------------------------
   <li>{{forloop.counter}}: <!--[
     {% csrf_token %}
@@ -32,12 +33,15 @@
       <a href="#" onclick="$(this).closest('form').submit();">delete</a>
     </form>
     ]-->
-    [<a href="{% url 'movtra:removeMovieFromList' list v.id %}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
+    <!-- [<a href="{% url 'movtra:removeMovieFromList' list v.id %}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a> -->
+    
+    [<a class="removeBTN" id="movie{{v.id}}" href="#" data-movid="{{v.id}}" data-listid="{{list}}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
     {% if v.id in logentry %}
     watched
     {% endif %}
     </p>
   </li>
+</div>
   {% if m.log_id %}
   m.log_id
   {% endif %}
@@ -49,6 +53,30 @@
 {% endfor %}
 
 </ul>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<script type="text/javascript">
+  $('.removeBTN').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  var movid, listid;
+  movid = $(this).attr("data-movid");
+  listid = $(this).attr("data-listid");
+  $.ajax(
+  {
+      type:"GET",
+      url: "/removeMovieFromListGET",
+      data:{
+               movie_id: movid,
+               list_id: listid
+      },
+      success: function( data ) 
+      {
+          $( '#movie'+ movid ).remove();
+      }
+   })
+});
+</script>
 
 <script>
   // Submit post on submit
