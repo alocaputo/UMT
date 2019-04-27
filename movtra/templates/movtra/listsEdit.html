@@ -17,8 +17,10 @@
 <div class="row">
   <ul style="list-style-type:none">
     {% for l in list %}
+    <div id="list{{l.id}}">
     ---------------------------------------
-    <li data-label="Name" id="list{{l.id}}">[<a class="deletebutton" href="{% url 'movtra:removeList' l.id %}" data-listID={{l.id}}>X</a>] <a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></li>
+    <li data-label="Name" id="list{{l.id}}">[<a class="removeBTN" id="movie{{l.id}}" href="#" data-listid="{{l.id}}">X</a>] <a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></li>
+    </div>
     {% endfor %}
   </ul>
 </div>
@@ -37,24 +39,23 @@
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script type="text/javascript">
-$('.deletebutton').click(function(){
-var listid;
-listid = $(this).attr("data-listID");
-
-$.ajax(
-{
-    type:"GET",
-    url: "/removed",
-    data:{
-             listid: listid 
-    },
-    dataType: 'json',
-    success: function( data ) 
-    {
-        $( '#list'+ listid ).remove();
-        $( '#message' ).text(data);
-    }
- })
+  $('.removeBTN').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  var movid, listid;
+  listid = $(this).attr("data-listid");
+  $.ajax(
+  {
+      type:"GET",
+      url: "/removeListsGET",
+      data:{
+               list_id: listid
+      },
+      success: function( data ) 
+      {
+          $( '#list'+ listid ).remove();
+      }
+   })
 });
 </script>
 {% endblock %}

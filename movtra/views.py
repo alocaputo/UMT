@@ -356,6 +356,7 @@ def editLists(request):
 	context['list'] = list
 	return render(request, 'movtra/listsEdit.html', context)
 
+#deprecated I think
 def editListsAjax(request):
 	context = {}
 	list = List.objects.all()
@@ -364,6 +365,7 @@ def editListsAjax(request):
 	#return render(request, 'movtra/listsEdit.html', context)
 	return JsonResponse(context)
 
+#deprecated
 def removeList(request, id):
 	if request.method == 'POST':
 		print('post')
@@ -375,6 +377,17 @@ def removeList(request, id):
 	List.objects.filter(id=id).delete()
 	return redirect(request.META['HTTP_REFERER'])
 
+def removeListsGET(request):
+	if request.method == 'GET':
+		listID = request.GET['list_id']
+		List.objects.filter(id=listID).delete()
+		isIn.objects.filter(list_id=listID).delete()
+		return HttpResponse("Success!")
+	else:
+		print("nope")
+		return HttpResponse("Request method is not a GET")
+
+#deprecated
 def removeMovieFromList(request, id, tmdbID):
 	if request.method == 'POST':
 		print(id)
