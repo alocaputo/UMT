@@ -43,21 +43,43 @@ def nowplaying(request):
 	context = {'results': nowplaying, 'search': False}
 	return render(request, 'movtra/results.html', context)
 
+#Merge it with resDetail (resDetail is ok)
 def detail(request, tmdbID):
-	try:
-		movie = Movie.objects.get(id=tmdbID)
-	except Movie.DoesNotExist:
-		movie = None	
-	if movie is None:
-		movie = get_object_or_404(Movie, pk=tmdbID)
-		return render(request, 'movtra/detail.html', {'movie': movie})
-	else:
-		isin = isIn.objects.filter(movie=movie).order_by('list')
-		isgenre = isGenre.objects.filter(movie=movie)
-		crew = WorkedAsCrew.objects.filter(movie=movie,job="Director")
-		diary = LogEntry.objects.filter(movie=movie)
-		return render(request, 'movtra/detail.html', {'movie': movie, 'isIn': isin, 'isGenre': isgenre, 'crew' : crew, 'diary': diary})
+        try:
+            movie = Movie.objects.get(id=tmdbID)
+        except Movie.DoesNotExist:
+            movie = None
+        if movie is None:
+            # Should serialize movie if present in the database
+            movie = get_object_or_404(Movie, pk=tmdbID)
+            return render(request, 'movtra/detail.html', {'movie': movie})
+        else:
+            isin = isIn.objects.filter(movie=movie).order_by('list')
+            lists = []
+            for l in isin:
+                lists.append(l.list.id)
+            isgenre = isGenre.objects.filter(movie=movie)
+            genres = []
+            for g in isgenre:
+                genres.append(g.genre.name)
+            crew = WorkedAsCrew.objects.filter(movie=movie,job="Director")
+            directors = {}
+            dID=0
+            for p in crew:
+                directors[dID] = p.person.name
+                dID+=1
+            diary_entries = LogEntry.objects.filter(movie=movie)
+            diary = {}
+            eID = 0
+            for e in diary_entries:
+                diary[eID] = {'id': e.id, 'date': e.date, 'rating': e.rating, 'review': e.review}
+                eID+=1
+            pprint.pprint(diary)
+            return render(request, 'movtra/detail.html', {'movie': movie, 'lists': lists, 'genres': genres, 'directos' : directors, 'diary': diary})
 
+		#return render(request, 'movtra/detail.html', {'movie': movie, 'isIn': isin, 'isGenre': isgenre, 'crew' : crew, 'diary': diary})
+
+#Not used
 def seen(request):
 	if request.method == 'POST':
 		tmdbID = request.POST.get('seen')
@@ -86,6 +108,7 @@ def results(request):
 	context = {'results': results , 'search': True}
 	return render(request, 'movtra/results.html', context)
 
+
 def resDetail(request, tmdbID):
 	movie = tmdb_api_wrap.getMovieByID(tmdbID)
 	genres=movie['genres']
@@ -104,17 +127,18 @@ def resDetail(request, tmdbID):
 	try:
 		mov = Movie.objects.get(id=movie['id'])
 	except Movie.DoesNotExist:
-		mov = None	
+		mov = None
 	if mov is None:
 		#return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g, 'directors': directors })
 		return render(request, 'movtra/resDetail.html',  {'movie': movie, 'isIn': None, 'genres': g, 'directors' : directors, 'diary': None})
 	else:
 		return render(request, 'movtra/detail.html', {'movie': mov, 'genres': g, 'directors': directors})
-	
 
+
+#Used by resDetail to add a new movie
 def add(request):
 	isSeen = False
-	
+
 	if request.method == 'POST':
 		seen = request.POST.get('add')
 		tmdbID = request.POST.get('tmdbID')
@@ -124,10 +148,11 @@ def add(request):
 
 	return HttpResponseRedirect('/movie/'+tmdbID )
 
+#General purpose function to add a movie given it's id  to the dB
 def addMovie(tmdbID):
 	try:
 		Movie.objects.get(pk=tmdbID)
-	except Movie.DoesNotExist:	
+	except Movie.DoesNotExist:
 		movie = tmdb_api_wrap.getMovieByID(tmdbID)
 		try:
 			mov = Movie.addShow(movie)
@@ -221,12 +246,14 @@ def addMovie(tmdbID):
 			WorkedAsCrew.objects.filter(movie=tmdbID).delete()
 			Movie.objects.filter(id=tmdbID).delete()
 
+#List view (lists)
 def lists(request):
 	context = {}
 	list = List.objects.all()
 	context['list'] = list
 	return render(request, 'movtra/lists.html', context)
 
+#List view (list of movies)
 def listDetail(request, id):
 	listID = List.objects.get(id=id)
 
@@ -240,11 +267,12 @@ def listDetail(request, id):
 		w=0
 		for wc in watched_count:
 			w+=1
-		
+
 	print(watched_count)
 	context = {'movies': movies, 'list': listID ,'total':len(movies), 'watched': len(list(watched_count)), 'logentry': list(watched_count)}
 	return render(request, 'movtra/listDetail.html', context)
 
+#Import button in list (WIP)
 def importList(request, id):
 	"""movies = tmdb_api_wrap.importImdb('./movtra/utils/10.csv')
 	i=0
@@ -261,6 +289,7 @@ def importList(request, id):
 	letterboxdImport("/home/theloca95/letterbox/diary.csv")
 	return HttpResponseRedirect('../')
 
+#Imports movies from a letterboxd file
 def letterboxdImport(file):
 	ids = []
 	p=0
@@ -286,6 +315,8 @@ def letterboxdImport(file):
 			LogEntry.addLogEntry(data)
 			i=i+1
 	return ids
+
+#Create a new list
 def newList(request):
 	context = {}
 	if request.method == 'POST':
@@ -331,7 +362,7 @@ def editList(request, id):
 		#movieIDs.append(m.movie.id)
 		movs[i] = {'id': m.movie.id, 'title': m.movie.title, 'year': str(m.movie.release_date)[:4]}
 		i+=1
-	
+
 	if not movies.exists:
 		#watched_count = len(isIn.objects.filter(list=list).filter(movie__status_watched=True))
 		watched_count = 0
@@ -413,6 +444,7 @@ def removeDiaryEntry(request, tmdbID, diaryID):
 	LogEntry.objects.filter(id=diaryID).delete()
 	return redirect(request.META['HTTP_REFERER'])
 
+#TODO
 def editReview(request, tmdbID):
 	movie = get_object_or_404(Movie, pk=tmdbID)
 	context = {'movie': movie}
@@ -434,7 +466,7 @@ def personDetail(request, tmdbID):
 
 #TODO cache manager
 # if (\wsdasd.jpg) exists use it else download and use it
-# genres page 
+# genres page
 
 #select movtra_movie.id
 #from movtra_isgenre, movtra_movie

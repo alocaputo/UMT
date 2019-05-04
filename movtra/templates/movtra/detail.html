@@ -63,8 +63,8 @@
 			</div>
 			<fieldset>
 					<h3>Diary:</h3>
-					{% for entry in diary %}
-					<p>{{forloop.counter}}) {% if entry.date %}{{entry.date}}{% else %} No date available {% endif %} | <i class="fa fa-star"></i> {% if entry.rating %}{{entry.rating}}{% else %} No rating available {% endif %} (<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)</p>
+					{% for k, entry in diary.items %}
+                    <p>{{forloop.counter}}) {% if entry.date %}{{entry.date}}{% else %} No date available {% endif %} | <i class="fa fa-star"></i> {% if entry.rating %}{{entry.rating}}{% else %} No rating available {% endif %} (<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)</p>
 					{% if entry.review %}
 					<p>↳{{entry.review}}</p>
 					{% endif %}

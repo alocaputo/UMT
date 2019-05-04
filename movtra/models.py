@@ -42,9 +42,9 @@ class Movie(models.Model):
 			try:
 				movie = Movie.objects.get(id=data['id'])
 			except Movie.DoesNotExist:
-				movie = None	
+				movie = None
 			if movie is None:
-				movie = Movie()  
+				movie = Movie()
 				movie.id = data['id']
 				movie.adult = data['adult']
 				if( data['belongs_to_collection'] is not None):
@@ -80,7 +80,7 @@ class List(models.Model):
 		return self.name
 
 	def addShow(name):
-		list = List()  
+		list = List()
 		list.name = name
 		list.save()
 
@@ -106,7 +106,7 @@ class Genres(models.Model):
 
 	def __str__(self):
 		return self.name
-	
+
 	def addGenre(genre):
 		newGenre = Genres()
 		newGenre.id = genre['id']
@@ -204,7 +204,7 @@ class Company(models.Model):
 
 	def __str__(self):
 		return self.name
-	
+
 	def addNewCompany(data):
 		newCompany = Company()
 		newCompany.id = data['id']
@@ -288,15 +288,19 @@ class LogEntry(models.Model):
 	review = models.TextField(blank=True)
 
 	def __str__(self):
-		return self.date.strftime('%d/%m/%Y') + " | " + self.movie.title + " | " +  str(self.rating)
-
+		if self.date != None:
+			return self.date.strftime('%d/%m/%Y') + " | " + self.movie.title + " | " +  str(self.rating)
+		else:
+			return "No date available | " + self.movie.title + " | " + str(self.rating)
 	def addLogEntry(data):
 		newLogEntry = LogEntry()
 		newLogEntry.movie = Movie.objects.get(id=data['tmdbID'])
 		if data['date'] != '':
 			newLogEntry.date = data['date']
-		if data['rating'] != '':
+		if data['rating'] != None:
 			newLogEntry.rating = float(data['rating'])
+		else: # emptry => 0
+			newLogEntry.rating = float(0)
 		newLogEntry.review = data['review']
 		newLogEntry.save()
 		return newLogEntry.movie.id
