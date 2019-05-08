@@ -75,11 +75,11 @@
 			<div class="dropdown">
 				<button onclick="myFunction()" class="dropbtn">Log this movie</button>
 			</div>
-			{% if isIn %}
+			{% if lists %}
 				<h4>Lists:</h4>
 				<ul>
-					{% for isin in isIn %}
-					<li><a href="{% url 'movtra:listDetail' isin.list.id %}">{{isin.list.name}}</a></li>
+					{% for k,v in lists.items %}
+					<li><a href="{% url 'movtra:listDetail' v.id %}">{{v.name}}</a></li>
 					{% endfor %}
 				</ul>
 			{% else %}

@@ -43,21 +43,31 @@ def nowplaying(request):
 	context = {'results': nowplaying, 'search': False}
 	return render(request, 'movtra/results.html', context)
 
+def serialize_movie(movie_entry):
+    movie = {}
+    for attr,k in movie_entry.__dict__.items():
+        movie[attr] = k
+    return movie
+
 #Merge it with resDetail (resDetail is ok)
 def detail(request, tmdbID):
         try:
             movie = Movie.objects.get(id=tmdbID)
+            movie_serialized = serialize_movie(movie)
         except Movie.DoesNotExist:
             movie = None
         if movie is None:
-            # Should serialize movie if present in the database
+            # Useless beanch
             movie = get_object_or_404(Movie, pk=tmdbID)
             return render(request, 'movtra/detail.html', {'movie': movie})
         else:
             isin = isIn.objects.filter(movie=movie).order_by('list')
-            lists = []
+            lists = {}
+            lID=0
             for l in isin:
-                lists.append(l.list.id)
+                lists[lID] = {'id': l.list.id,
+							  'name': l.list.name}
+                lID+=1
             isgenre = isGenre.objects.filter(movie=movie)
             genres = []
             for g in isgenre:
@@ -74,7 +84,7 @@ def detail(request, tmdbID):
             for e in diary_entries:
                 diary[eID] = {'id': e.id, 'date': e.date, 'rating': e.rating, 'review': e.review}
                 eID+=1
-            pprint.pprint(diary)
+            pprint.pprint(movie)
             return render(request, 'movtra/detail.html', {'movie': movie, 'lists': lists, 'genres': genres, 'directos' : directors, 'diary': diary})
 
 		#return render(request, 'movtra/detail.html', {'movie': movie, 'isIn': isin, 'isGenre': isgenre, 'crew' : crew, 'diary': diary})
