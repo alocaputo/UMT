@@ -66,7 +66,7 @@ def detail(request, tmdbID):
             lID=0
             for l in isin:
                 lists[lID] = {'id': l.list.id,
-							  'name': l.list.name}
+	                      'name': l.list.name}
                 lID+=1
             isgenre = isGenre.objects.filter(movie=movie)
             genres = []
@@ -82,7 +82,10 @@ def detail(request, tmdbID):
             diary = {}
             eID = 0
             for e in diary_entries:
-                diary[eID] = {'id': e.id, 'date': e.date, 'rating': e.rating, 'review': e.review}
+                diary[eID] = {'id': e.id,
+                              'date': e.date,
+                              'rating': e.rating,
+                              'review': e.review}
                 eID+=1
             pprint.pprint(movie)
             return render(request, 'movtra/detail.html', {'movie': movie, 'lists': lists, 'genres': genres, 'directos' : directors, 'diary': diary})
@@ -120,29 +123,29 @@ def results(request):
 
 
 def resDetail(request, tmdbID):
-	movie = tmdb_api_wrap.getMovieByID(tmdbID)
-	genres=movie['genres']
-	pprint.pprint(genres)
-	#crew=movie['crew']
-	directors = {}
-	dID=0
-	for p in movie['credits']['crew']:
-		if p['job'] == 'Director':
-			directors[dID] = p['name']
-			dID+=1
-	print(directors)
-	g = []
-	for gen in genres:
-		g.append(gen['name'])
-	try:
-		mov = Movie.objects.get(id=movie['id'])
-	except Movie.DoesNotExist:
-		mov = None
-	if mov is None:
-		#return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g, 'directors': directors })
-		return render(request, 'movtra/resDetail.html',  {'movie': movie, 'isIn': None, 'genres': g, 'directors' : directors, 'diary': None})
-	else:
-		return render(request, 'movtra/detail.html', {'movie': mov, 'genres': g, 'directors': directors})
+    movie = tmdb_api_wrap.getMovieByID(tmdbID)
+    genres=movie['genres']
+    pprint.pprint(genres)
+    #crew=movie['crew']
+    directors = {}
+    dID=0
+    for p in movie['credits']['crew']:
+        if p['job'] == 'Director':
+            directors[dID] = p['name']
+            dID+=1
+    print(directors)
+    g = []
+    for gen in genres:
+    	g.append(gen['name'])
+    try:
+    	mov = Movie.objects.get(id=movie['id'])
+    except Movie.DoesNotExist:
+    	mov = None
+    if mov is None:
+    	#return render(request, 'movtra/resDetail.html', {'movie': movie, 'genres': g, 'directors': directors })
+    	return render(request, 'movtra/resDetail.html',  {'movie': movie, 'isIn': None, 'genres': g, 'directors' : directors, 'diary': None})
+    else:
+    	return render(request, 'movtra/detail.html', {'movie': mov, 'genres': g, 'directors': directors})
 
 
 #Used by resDetail to add a new movie
