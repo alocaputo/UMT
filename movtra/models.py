@@ -310,4 +310,3 @@ class LogEntry(models.Model):
 		instance = LogEntry.objects.get(id=entryID)
 		instance.delete()
 
-#https://api.themoviedb.org/3/movie/345009?api_key=88b9df7c1eb6689e78cf9b5ec24a0c1e&append_to_response=credits

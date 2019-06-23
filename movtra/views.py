@@ -113,13 +113,15 @@ def rating(request):
 	return redirect(request.META['HTTP_REFERER'])
 
 
+#TODO: add next page
 def results(request):
-	movieName = request.POST.get('searchTitle')
-	if ' ' in movieName:
-		movieName = movieName.replace(' ','+')
-	results = tmdb_api_wrap.getMovieByName(movieName)
-	context = {'results': results , 'search': True}
-	return render(request, 'movtra/results.html', context)
+    movieName = request.POST.get('searchTitle')
+    if ' ' in movieName:
+        movieName = movieName.replace(' ','+')
+    results = tmdb_api_wrap.getMovieByName(movieName)
+    total_pages = results[1]
+    context = {'results': results[0] , 'total_pages': total_pages, 'search': True}
+    return render(request, 'movtra/results.html', context)
 
 
 def resDetail(request, tmdbID):

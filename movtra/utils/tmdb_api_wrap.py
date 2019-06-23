@@ -53,12 +53,13 @@ def getMovieByID(tmdbID):
 		return json_r
 
 def getMovieByName(movieName):
-	url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName 
+    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName
 	#+'&year=1967'
-	json_r = requests.get(url).json()
-	results = json_r['results']
-	#pprint.pprint(results)
-	return results
+    json_r = requests.get(url).json()
+    total_pages =  json_r['total_pages']
+    results = json_r['results']
+    #pprint.pprint(results)
+    return (results, total_pages)
 
 def getMovieByImdbID(imdbID):
 	url = 'https://api.themoviedb.org/3/find/'+ imdbID +'?api_key='+ apikey +'&external_source=imdb_id'
@@ -174,7 +175,7 @@ def getPersonByID(personID):
 	person_info['adult'] = data.adult
 	person_info['imdb_id'] = data.imdb_id
 	person_info['homepage'] = data.homepage
-	
+
 	return person_info
 
 def searchByYear(title, year):
@@ -220,7 +221,7 @@ def addToDB(movieID):
                           movie['imdb_id'],
                           movie['original_language'],
                           movie['original_title'],
-                          movie['overview'], 
+                          movie['overview'],
                           int(movie['popularity']),
                           movie['backdrop_path'],
                           movie['poster_path'],
