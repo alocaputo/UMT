@@ -35,12 +35,12 @@ def all(request):
 
 def upcoming(request):
 	upcoming = tmdb_api_wrap.getUpcoming()
-	context = {'results': upcoming, 'search': False}
+	context = {'results': upcoming, 'type': 0}
 	return render(request, 'movtra/results.html', context)
 
 def nowplaying(request):
 	nowplaying = tmdb_api_wrap.getNowPlaying()
-	context = {'results': nowplaying, 'search': False}
+	context = {'results': nowplaying, 'type': 0}
 	return render(request, 'movtra/results.html', context)
 
 def serialize_movie(movie_entry):
@@ -101,14 +101,21 @@ def seen(request):
 			movie.toggleWst()
 	return redirect(request.META['HTTP_REFERER'])
 
-def rating(request):
-	if request.method == 'POST':
+def logMovie(request):
+	if request.method == 'POST':	
 		date = request.POST.get('bday')
 		tmdbID = request.POST.get('tmdbID')
 		rating = request.POST.get('rating')
 		review = ""
 		review = request.POST.get('review')
 		data = {'tmdbID': tmdbID , 'date': date, 'rating': rating, 'review': review}
+		
+		try:
+			mov = Movie.objects.get(id=tmdbID)
+		except Movie.DoesNotExist:
+			mov = None
+		if mov is None:
+			addMovie(tmdbID)
 		LogEntry.addLogEntry(data)
 	return redirect(request.META['HTTP_REFERER'])
 
@@ -120,7 +127,7 @@ def results(request):
         movieName = movieName.replace(' ','+')
     results = tmdb_api_wrap.getMovieByName(movieName)
     total_pages = results[1]
-    context = {'results': results[0] , 'total_pages': total_pages, 'search': True}
+    context = {'results': results[0] , 'total_pages': total_pages, 'type': 0}
     return render(request, 'movtra/results.html', context)
 
 
@@ -349,9 +356,9 @@ def addToList(request, id):
 	movieName = request.POST.get('listTitle')
 	if ' ' in movieName:
 		movieName = movieName.replace(' ','+')
-	results = tmdb_api_wrap.getMovieByName(movieName)
-	context = {'results': results , 'list_id': id}
-	return render(request, 'movtra/listAdd.html', context)
+	results = tmdb_api_wrap.getMovieByName(movieName) #return (results, number of results)
+	context = {'results': results[0] , 'results_number': results[1], 'list_id': id, 'type': 1} # type 1 list
+	return render(request, 'movtra/results.html', context)
 
 def addMovieToList(request, id):
 	context = {}

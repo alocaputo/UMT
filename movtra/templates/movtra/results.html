@@ -1,9 +1,9 @@
 {% extends 'movtra/layout.html' %}
 
 {% block content %}
-{% if search %}
+{% if type == 0 %}
   <h1>Results</h1>
-{% endif %}
+
 <!--
 <div class="row">
 		{% for movie in results %}
@@ -52,4 +52,41 @@
     }
   
     </style>
+
+    {% elif type == 1 %}
+
+    <div class="container">
+    <div class="col-sm">
+        {% for movie in results %}
+        <a href="{% url 'movtra:resDetail' movie.id %}"><div class="row">
+            <div class="col-sm-4">
+                <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}">
+           </div>
+          <div class="col-sm-4">
+              
+                  <p>{{movie.title}}</p>
+          </div>
+        </div></a>
+        <form action="{% url 'movtra:addMovieToList' movie.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" name="listadd" value="add">
+            <input type="hidden" name="listid" value="{{ list_id }}">
+
+          </form>
+        {% endfor %}
+    </div>
+  </div>
+  <div>
+      <span>Page: 1 of {{ total_pages }} </span>
+  </div>
+  <style>
+    img{
+      height: 20%;
+    }
+    .row{
+      height: 20%;
+    }
+  
+    </style>
+    {% endif %}
 {% endblock %}

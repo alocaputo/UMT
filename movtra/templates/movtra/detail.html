@@ -33,7 +33,7 @@
 				<div id="composeheader">
 					{{movie.title}}
 				</div>
-				<form action="{% url 'movtra:rating' %}" method="post">{% csrf_token %}
+				<form action="{% url 'movtra:logMovie' %}" method="post">{% csrf_token %}
 					<input type="hidden" name="tmdbID" value="{{movie.id}}">
 					<div id="to">
 						Date <input type="date" name="bday">
