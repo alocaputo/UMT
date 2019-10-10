@@ -53,7 +53,7 @@ def getMovieByID(tmdbID):
 		return json_r
 
 def getMovieByName(movieName, pageNumber):
-    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + pageNumber
+    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + str(pageNumber)
 	#+'&year=1967'
     json_r = requests.get(url).json()
     total_pages =  json_r['total_pages']

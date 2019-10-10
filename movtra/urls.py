@@ -34,8 +34,5 @@ urlpatterns = [
 	url(r'^seen', views.seen, name='seen'),
 	url(r'^logMovie', views.logMovie, name='logMovie'),
 	path('results/', views.results, name='results'),
-	path('results/<int:tmdbID>/resDetail/', views.resDetail, name='resDetail'),
-	url(r'^resDetail', views.resDetail, name='resDetail'),
-	url(r'^add', views.add, name='add'),
 	url(r'^remove/$', views.editListsAjax, name='remove'),
 ]

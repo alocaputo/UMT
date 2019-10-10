@@ -13,23 +13,31 @@
 				{% static "" as baseUrl %}
 				<img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}">
 				<!--<img src="{{ baseUrl }}movtra{{movie.poster}}" height="50%"></img>-->
-				<p>Director: {{movie.director}}</p>
-				{% for job in crew %}
+				
+				{% if local %}
+				<p>Director(s):
+				{% for job in directors %}
 					<a href="{% url 'movtra:personDetail' job.person.id %}">{{job.person.name}}</a>
 				{% endfor %}
-				<p>Runtime:  {{movie.runtime}} min</p>
-				<p>Genres: 
-				{% for genre in isGenre %}
-					{{genre.genre.name}}
-				{% endfor %}</p>
-				<p>tmdb: {{movie.vote_average}} [{{movie.vote_count}}]</p>
-				<p>Director: 
-					{% for k, v in directors.items %}
-					{{v}}
-					{% endfor %}
 				</p>
-				<p>Runtime:  {{movie.runtime}} mins</p>
-				<p>Generes: {%for g in genres%}{{g}} {% endfor%}</p>
+				<p>Genres: 
+					{% for genre in genres %}
+						{{genre}}
+					{% endfor %}</p>
+				{% else %}
+				<p>Director(s): 
+						{% for k, v in directors.items %}
+						<a href="{% url 'movtra:personDetail' v.id %}">{{v.name}}</a>
+						{% endfor %}
+					</p>
+				<p>Genres: {%for g in genres%}{{g.name}} {% endfor%}</p>
+				
+				{% endif %}
+				
+				<p>Runtime:  {{movie.runtime}} min</p>
+				
+				<p>tmdb: {{movie.vote_average}} [{{movie.vote_count}}]</p>
+				
 				<p>Release date: {{movie.release_date}}</p>
 				<input type="button" id="update_data" value="Update data">
 			</fieldset>
