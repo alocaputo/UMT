@@ -460,7 +460,7 @@ def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
     #pprint.pprint(filmography)
-    context = {'person': personData}
+    context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew']}
     return render(request, 'movtra/personDetail.html', context)
 
 #TODO cache manager

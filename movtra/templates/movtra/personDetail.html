@@ -7,31 +7,25 @@
 	<div class="row">
 		<div class="col-sm-2">
 			<fieldset>
-			<h3>{{ person.name }} </h3>
-			<img src="https://image.tmdb.org/t/p/w300{{person.profile_path }}">
-            <p>Birthday: {{person.birthday}}</p>
-            <p>Place of Birth: {{person.place_of_birth}}</p>
-			
-			<input type="button" id="update_data" value="Update data">
-		</fieldset>
+				<h3>{{ person.name }} </h3>
+				<img src="https://image.tmdb.org/t/p/w300{{person.profile_path }}">
+				<p>Birthday: {{person.birthday}}</p>
+				<p>Place of Birth: {{person.place_of_birth}}</p>
+				<input type="button" id="update_data" value="Update data">
+			</fieldset>
 		</div>
 	
 	
 		<div class="col-sm-6 ">
 			<p id="overview">{{person.biography}}</p>
-			<div id="myDropdown" class="dropdown-content">
-		<div id="composeheader">
-		{{movie.title}}
 		</div>
-		<img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}">
-
-	</div>
 	
-		</div>
 		<div class="col-sm-3 ">
-			
-			
-			
+			{% for job, v in crew.items %}
+				<p><b>{{job}}</b> :</p> {% for k, m in v.items %}
+				<a href="{% url 'movtra:detail' m.id %}"><p>{{m.title}}&nbsp;</p></a>
+				{% endfor %}
+			{% endfor %}
 		</div>	
 	</div>
 </div>

@@ -142,7 +142,39 @@ def getFilmography(personID):
 	#acting
 	#writing
 	json_r = requests.get(url).json()
-	return json_r
+	cast = {}
+	cID = 0
+	for c in json_r['cast']:
+		if 'release_date' in c:
+			rd =  c['release_date']
+		else:
+			rd = 0
+		cast[cID] = {'character': c['character'],
+					 'poster_path': c['poster_path'],
+					 'id': c['id'],
+					 'title': c['title'],
+					 'release_date': rd
+					}
+		cID+=1
+	crew = {}
+	ncrew = {}
+	for c in json_r['crew']:
+		if not c['job'] in ncrew:
+			ncrew[c['job']] = -1
+			crew[c['job']] = {}
+		ncrew[c['job']] += 1
+
+		if 'release_date' in c:
+			rd =  c['release_date']
+		else:
+			rd = 0
+		job = {	'id': c['id'],
+								'title': c['title'],
+								'release_date': rd,
+								'poster_path': c['poster_path']
+						}
+		crew[c['job']][ncrew[c['job']]] = job
+	return {'cast': cast, 'crew': crew}
 
 def getUpcoming():
 	getToken()
@@ -247,10 +279,12 @@ if __name__ == "__main__":
 	#getMovieByID(550)
 	#getPersonByID(7467)
 	#letterboxdImport("/home/theloca95/letterbox/diary.csv")
-	addToDB(21)
-	print('done')
+	#addToDB(21)
+	#print('done')
 	#m = getMovieByID('399407')
 	#getMovieByName('Report')
 	#pprint.pprint(m)
 	#pprint.pprint(importImdb('./WATCHLIST.csv'))
 	#importImdb('./WATCHLIST.csv')
+	cast = getFilmography(4429)
+	pprint.pprint(cast)
