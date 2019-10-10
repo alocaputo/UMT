@@ -133,15 +133,16 @@ def importTest():
 		print('sadasd')
 
 def getPersonID(name):
-	url = 'http://api.tmdb.org/3/search/person?api_key='+apikey+'&query=quentin%20tarantino'
+	url = 'http://api.tmdb.org/3/search/person?api_key='+ apikey +'&query=quentin%20tarantino'
 	return True
 
 def getFilmography(personID):
-	url = 'https://api.themoviedb.org/3/person/'+ personID +'/movie_credits?api_key=' + apikey + '&language=en-US'
+	url = 'https://api.themoviedb.org/3/person/'+ str(personID) +'/movie_credits?api_key=' + apikey + '&language=en-US'
 	#directing
 	#acting
 	#writing
-	return True
+	json_r = requests.get(url).json()
+	return json_r
 
 def getUpcoming():
 	getToken()

@@ -86,7 +86,6 @@ def detail(request, tmdbID):
                 genres.append(g.genre.name)
             #crew = WorkedAsCrew.objects.filter(movie=movie,job="Director")
             directors = WorkedAsCrew.objects.filter(movie=movie,job="Director")
-            pprint.pprint(directors)
             #directors = {}
             #dID=0
             #for p in crew:
@@ -459,6 +458,8 @@ def saveReview(request, tmdbID):
 
 def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
+    filmography = tmdb_api_wrap.getFilmography(tmdbID)
+    #pprint.pprint(filmography)
     context = {'person': personData}
     return render(request, 'movtra/personDetail.html', context)
 
