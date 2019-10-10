@@ -57,9 +57,23 @@ def detail(request, tmdbID):
         except Movie.DoesNotExist:
             movie = None
         if movie is None:
-            # Useless beanch
-            movie = get_object_or_404(Movie, pk=tmdbID)
-            return render(request, 'movtra/detail.html', {'movie': movie})
+            # Useless
+            movie = tmdb_api_wrap.getMovieByID(tmdbID)
+    		#genres=movie['genres']
+            #movie = get_object_or_404(Movie, pk=tmdbID)
+            #return render(request, 'movtra/detail.html', {'movie': movie})
+            genres=movie['genres']
+            directors = {}
+            dID=0
+            for p in movie['credits']['crew']:
+               if p['job'] == 'Director':
+                    directors[dID] = p['name']
+                    dID+=1
+    
+            g = []
+            for gen in genres:
+                g.append(gen['name'])
+            return render(request, 'movtra/detail.html', {'movie': movie, 'genres': genres, 'directors': directors})
         else:
             isin = isIn.objects.filter(movie=movie).order_by('list')
             lists = {}
@@ -125,7 +139,7 @@ def results(request):
     movieName = request.POST.get('searchTitle')
     if ' ' in movieName:
         movieName = movieName.replace(' ','+')
-    results = tmdb_api_wrap.getMovieByName(movieName)
+    results = tmdb_api_wrap.getMovieByName(movieName,1)
     total_pages = results[1]
     context = {'results': results[0] , 'total_pages': total_pages, 'type': 0}
     return render(request, 'movtra/results.html', context)
@@ -134,7 +148,7 @@ def results(request):
 def resDetail(request, tmdbID):
     movie = tmdb_api_wrap.getMovieByID(tmdbID)
     genres=movie['genres']
-    pprint.pprint(genres)
+    #pprint.pprint(genres)
     #crew=movie['crew']
     directors = {}
     dID=0
@@ -142,7 +156,7 @@ def resDetail(request, tmdbID):
         if p['job'] == 'Director':
             directors[dID] = p['name']
             dID+=1
-    print(directors)
+    #print(directors)
     g = []
     for gen in genres:
     	g.append(gen['name'])
@@ -356,8 +370,8 @@ def addToList(request, id):
 	movieName = request.POST.get('listTitle')
 	if ' ' in movieName:
 		movieName = movieName.replace(' ','+')
-	results = tmdb_api_wrap.getMovieByName(movieName) #return (results, number of results)
-	context = {'results': results[0] , 'results_number': results[1], 'list_id': id, 'type': 1} # type 1 list
+	results = tmdb_api_wrap.getMovieByName(movieName,1) #return (results, number of results)
+	context = {'results': results[0] , 'total_pages': results[1], 'list_id': id, 'type': 1} # type 1 list
 	return render(request, 'movtra/results.html', context)
 
 def addMovieToList(request, id):

@@ -28,7 +28,7 @@
 <div class="container">
     <div class="col-sm">
         {% for movie in results %}
-        <a href="{% url 'movtra:resDetail' movie.id %}"><div class="row">
+        <a href="{% url 'movtra:detail' movie.id %}"><div class="row">
             <div class="col-sm-4">
                 <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}">
            </div>
@@ -58,21 +58,22 @@
     <div class="container">
     <div class="col-sm">
         {% for movie in results %}
-        <a href="{% url 'movtra:resDetail' movie.id %}"><div class="row">
+        <div class="row">
             <div class="col-sm-4">
                 <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}">
            </div>
           <div class="col-sm-4">
               
-                  <p>{{movie.title}}</p>
+            <a href="{% url 'movtra:detail' movie.id %}"> <p>{{movie.title}}</p></a>
           </div>
-        </div></a>
-        <form action="{% url 'movtra:addMovieToList' movie.id %}" method="post">
+          <form action="{% url 'movtra:addMovieToList' movie.id %}" method="post">
             {% csrf_token %}
-            <input type="submit" name="listadd" value="add">
+            <input type="submit" name="listadd" value="+">
             <input type="hidden" name="listid" value="{{ list_id }}">
 
           </form>
+        </div>
+        
         {% endfor %}
     </div>
   </div>

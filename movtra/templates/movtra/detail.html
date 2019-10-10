@@ -23,6 +23,14 @@
 					{{genre.genre.name}}
 				{% endfor %}</p>
 				<p>tmdb: {{movie.vote_average}} [{{movie.vote_count}}]</p>
+				<p>Director: 
+					{% for k, v in directors.items %}
+					{{v}}
+					{% endfor %}
+				</p>
+				<p>Runtime:  {{movie.runtime}} mins</p>
+				<p>Generes: {%for g in genres%}{{g}} {% endfor%}</p>
+				<p>Release date: {{movie.release_date}}</p>
 				<input type="button" id="update_data" value="Update data">
 			</fieldset>
 		</div>

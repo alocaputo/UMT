@@ -52,14 +52,15 @@ def getMovieByID(tmdbID):
 		#meglio json_r
 		return json_r
 
-def getMovieByName(movieName):
-    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName
+def getMovieByName(movieName, pageNumber):
+    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + pageNumber
 	#+'&year=1967'
     json_r = requests.get(url).json()
     total_pages =  json_r['total_pages']
+    total_results =  json_r['total_results']
     results = json_r['results']
-    #pprint.pprint(results)
-    return (results, total_pages)
+    pprint.pprint(results)
+    return (results, total_pages, total_results)
 
 def getMovieByImdbID(imdbID):
 	url = 'https://api.themoviedb.org/3/find/'+ imdbID +'?api_key='+ apikey +'&external_source=imdb_id'
