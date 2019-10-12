@@ -164,7 +164,7 @@ def addMovie(tmdbID):
                     except Genres.DoesNotExist:
                             genreID = Genres.addGenre(genre)
                             new+=1
-                    isGenre.addGenreToMovie(tmdbID,genreID)
+                            isGenre.addGenreToMovie(tmdbID,genreID)
             print('new: {}, old:{}'.format(new,old))
             new = 0
             old = 0
@@ -177,7 +177,7 @@ def addMovie(tmdbID):
                     except Company.DoesNotExist:
                             companyID = Company.addNewCompany(company)
                             new+=1
-                    Produce.addProdutionCompany(tmdbID, companyID)
+                            Produce.addProdutionCompany(tmdbID, companyID)
             print('new: {}, old:{}'.format(new,old))
             new = 0
             old = 0
@@ -190,7 +190,7 @@ def addMovie(tmdbID):
                     except Country.DoesNotExist:
                             countryID = Country.addCountry(country)
                             new+=1
-                    ProductionCountry.addProductionCountry(tmdbID, countryID)
+                            ProductionCountry.addProductionCountry(tmdbID, countryID)
             print('new: {}, old:{}'.format(new,old))
             new = 0
             old = 0
@@ -203,7 +203,7 @@ def addMovie(tmdbID):
                     except Language.DoesNotExist:
                             languageID = Language.addLanguage(language)
                             new+=1
-                    SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
+                            SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
             print('new: {}, old:{}'.format(new,old))
             new = 0
             old = 0
@@ -218,7 +218,7 @@ def addMovie(tmdbID):
                             person = tmdb_api_wrap.getPersonByID(personData['id'])
                             Person.addPerson(person)
                             new+=1
-                    WorkedAsCast.addPersonToCast(personData, tmdbID)
+                            WorkedAsCast.addPersonToCast(personData, tmdbID)
             print('new: {}, old:{}'.format(new,old))
             new = 0
             old = 0
@@ -231,7 +231,7 @@ def addMovie(tmdbID):
                             person = tmdb_api_wrap.getPersonByID(personData['id'])
                             Person.addPerson(person)
                             new+=1
-                    WorkedAsCrew.addPersonToCrew(personData, tmdbID)
+                            WorkedAsCrew.addPersonToCrew(personData, tmdbID)
             print('new: {}, old:{}'.format(new,old))
             
         except Exception as e:
@@ -552,7 +552,8 @@ def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
     #pprint.pprint(filmography)
-    context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew']}
+    crew_slug = {k.replace(' ', '_'): v for k, v in filmography['crew'].items()}
+    context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew'], 'crew_slug': crew_slug}
     return render(request, 'movtra/personDetail.html', context)
 
 #TODO cache manager

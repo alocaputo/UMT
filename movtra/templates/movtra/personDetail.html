@@ -25,17 +25,23 @@
 				<div class="dropdown">
 						<button class="dropbtn">Dropdown</button>
 						<div class="dropdown-content">
-						  <a href="#">Link 1</a>
-						  <a href="#">Link 2</a>
-						  <a href="#">Link 3</a>
+								{% for job, v in crew_slug.items %}
+								
+										<a onclick="myFunction({{job}})" class="dropbtn2">{{job}}</a>
+						  			{% endfor %}
 						</div>
 				</div> 
-			{% for job, v in crew.items %}
-				<p><b>{{job}}</b> :</p> {% for k, m in v.items %}
-				<a href="{% url 'movtra:detail' m.id %}"><p>{{m.title}}&nbsp;</p></a>
+				<div id="job_list">
+			{% for job, v in crew_slug.items %}
+				 
+				<div id={{job}} style="display: none;">
+						<p><b>{{job}}</b> :</p>
+				{% for k, m in v.items %}
+					<a  href="{% url 'movtra:detail' m.id %}" ><p>{{m.title}}&nbsp;</p></a>
 				{% endfor %}
+				</div>
 			{% endfor %}
-		
+		</div>
 		</div>	
 	</div>
 </div>
@@ -94,4 +100,11 @@ img{
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {background-color: #3e8e41;} 
 </style>
+
+<script>
+function myFunction(y) {
+	var x = document.getElementById(y);
+	y.style.display = "block";
+}
+</script>
 {% endblock %}
