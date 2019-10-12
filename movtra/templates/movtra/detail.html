@@ -39,7 +39,14 @@
 				<p>tmdb: {{movie.vote_average}} [{{movie.vote_count}}]</p>
 				
 				<p>Release date: {{movie.release_date}}</p>
-				<input type="button" id="update_data" value="Update data">
+				<div>
+				<form action="{% url 'movtra:updateData' movie.id %}" method="post">
+					{% csrf_token %}
+					<input type="submit" name="update_data" value="Update data">
+					<input type="hidden" name="movieID" value="{{ list_id }}">
+		
+				  </form>
+				</div>
 			</fieldset>
 		</div>
 

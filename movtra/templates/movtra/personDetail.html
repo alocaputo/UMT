@@ -21,11 +21,21 @@
 		</div>
 	
 		<div class="col-sm-3 ">
+			
+				<div class="dropdown">
+						<button class="dropbtn">Dropdown</button>
+						<div class="dropdown-content">
+						  <a href="#">Link 1</a>
+						  <a href="#">Link 2</a>
+						  <a href="#">Link 3</a>
+						</div>
+				</div> 
 			{% for job, v in crew.items %}
 				<p><b>{{job}}</b> :</p> {% for k, m in v.items %}
 				<a href="{% url 'movtra:detail' m.id %}"><p>{{m.title}}&nbsp;</p></a>
 				{% endfor %}
 			{% endfor %}
+		
 		</div>	
 	</div>
 </div>
@@ -41,85 +51,47 @@ img{
 #overview{
 	margin-top: 100px;
 }
-/*
-.input-group{
-	position: absolute;
-}
-*/
 
-form {
-    background: #f8f8f8;
-    border: 0px;
-    margin: .5rem;
-    padding: 0.75rem 0.5rem 1.125rem;
-}
-@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
-
-/*.rating, label { margin: 0; padding: 0; }
-
-h1 { font-size: 1.5em; margin: 10px; }
-
-/****** Style Star Rating Widget *****/
-
-.rating { 
+ /* Dropdown Button */
+ .dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
   border: none;
-  float: left;
 }
 
-.rating > input { display: none; } 
-.rating > label:before { 
-  margin: 5px;
-  font-size: 1.25em;
-  font-family: FontAwesome;
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
   display: inline-block;
-  content: "\f005";
 }
 
-.rating > .half:before { 
-  content: "\f089";
-  position: absolute;
-}
-
-.rating > label { 
-  color: #ddd; 
- float: right; 
-}
-
-.dropdown-content > fieldset, label { margin: 0; padding: 0; }
-/***** CSS Magic to Highlight Stars on Hover *****/
-
-.rating > input:checked ~ label, /* show gold star when clicked */
-.rating:not(:checked) > label:hover, /* hover current star */
-.rating:not(:checked) > label:hover ~ label { color: #FFD700;  } /* hover previous stars in list */
-
-.rating > input:checked + label:hover, /* hover current star when changing rating */
-.rating > input:checked ~ label:hover,
-.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
-.rating > input:checked ~ label:hover ~ label { color: #FFED85;  } 
-
-
-
-.dropdown-content{
-  color: black;
-  background-color: #a64dff;
-}
+/* Dropdown Content (Hidden by Default) */
 .dropdown-content {
-    display: none;
-    position: absolute;
-    min-width: 560px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
 }
 
-.show {display:block;}
-</style>
-<script>
-	function updateTextInput(val) {
-		$('#uu').text(val)
-		$('#subrating').submit();
-        }
-		function myFunction() {
-document.getElementById("myDropdown").classList.toggle("show");
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
 }
-</script>
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #3e8e41;} 
+</style>
 {% endblock %}

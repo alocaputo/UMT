@@ -45,31 +45,32 @@ class Movie(models.Model):
 				movie = None
 			if movie is None:
 				movie = Movie()
-				movie.id = data['id']
-				movie.adult = data['adult']
-				if( data['belongs_to_collection'] is not None):
-					movie.belongs_to_collection = data['belongs_to_collection']['id']
-				#movie.belongs_to_collection = False
-				movie.budget = data['budget']
-				movie.homepage = data['homepage']
-				movie.imdb_id = data['imdb_id']
-				movie.original_language = data['original_language']
-				movie.original_title = data['original_title']
-				movie.overview = data['overview']
-				movie.popularity = data['popularity']
-				movie.backdrop_path = data['backdrop_path']
-				movie.poster_path = data['poster_path']
-				movie.release_date = data['release_date']
-				movie.revenue = data['revenue']
-				movie.runtime = data['runtime']
-				movie.status = data['status']
-				movie.tagline = data['tagline']
-				movie.title = data['title']
-				movie.video = data['video']
-				movie.vote_average = data['vote_average']
-				movie.vote_count = data['vote_count']
-				print(movie)
-				movie.save()
+			
+			movie.id = data['id']
+			movie.adult = data['adult']
+			if( data['belongs_to_collection'] is not None):
+				movie.belongs_to_collection = data['belongs_to_collection']['id']
+			#movie.belongs_to_collection = False
+			movie.budget = data['budget']
+			movie.homepage = data['homepage']
+			movie.imdb_id = data['imdb_id']
+			movie.original_language = data['original_language']
+			movie.original_title = data['original_title']
+			movie.overview = data['overview']
+			movie.popularity = data['popularity']
+			movie.backdrop_path = data['backdrop_path']
+			movie.poster_path = data['poster_path']
+			movie.release_date = data['release_date']
+			movie.revenue = data['revenue']
+			movie.runtime = data['runtime']
+			movie.status = data['status']
+			movie.tagline = data['tagline']
+			movie.title = data['title']
+			movie.video = data['video']
+			movie.vote_average = data['vote_average']
+			movie.vote_count = data['vote_count']
+			print(movie)
+			movie.save()
 			return movie
 
 class List(models.Model):

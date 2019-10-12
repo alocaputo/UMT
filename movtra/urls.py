@@ -29,6 +29,8 @@ urlpatterns = [
 	path('lists/<int:id>/editList/removeMovieFromList/<int:tmdbID>', views.removeMovieFromList, name='removeMovieFromList'), #deprecated
 	url(r'^removeMovieFromListGET/$', views.removeMovieFromListGET, name='removeMovieFromListGET'),
 
+	path('movie/<int:tmdbID>/updateData', views.updateData, name='updateData'),
+
 	path('lists/<int:id>/addToList/addMovieToList', views.addMovieToList, name='addMovieToList'),
 	path('lists/newList', views.newList, name='newList'),
 	url(r'^seen', views.seen, name='seen'),

@@ -243,6 +243,98 @@ def addMovie(tmdbID):
             WorkedAsCrew.objects.filter(movie=tmdbID).delete()
             Movie.objects.filter(id=tmdbID).delete()
 
+# Update information for existing movies
+def updateData(request, tmdbID):
+    if request.method == 'POST':
+        try:
+            mov = Movie.objects.get(id=tmdbID)
+        except IntegrityError:
+            print('Movie not present in the db')
+        movie = tmdb_api_wrap.getMovieByID(tmdbID)
+        Movie.addShow(movie)
+        new = 0
+        old = 0
+        print('genres: {}'.format(len(movie['genres'])))
+        for genre in movie['genres']:
+            try:
+                    genreID = Genres.objects.get(pk=genre['id'])
+                    genreID = genre['id']
+                    old+=1
+            except Genres.DoesNotExist:
+                    genreID = Genres.addGenre(genre)
+                    new+=1 
+                    isGenre.addGenreToMovie(tmdbID,genreID)
+        print('new: {}, old:{}'.format(new,old))
+        new = 0
+        old = 0
+        print('companies: {}'.format(len(movie['production_companies'])))
+        for company in movie['production_companies']:
+                try:
+                        companyID = Company.objects.get(pk=company['id'])
+                        companyID = company['id']
+                        old+=1
+                except Company.DoesNotExist:
+                        companyID = Company.addNewCompany(company)
+                        new+=1
+                        Produce.addProdutionCompany(tmdbID, companyID)
+        print('new: {}, old:{}'.format(new,old))
+        new = 0
+        old = 0
+        print('countries: {}'.format(len(movie['production_countries'])))
+        for country in movie['production_countries']:
+                try:
+                        countryID = Country.objects.get(pk=country['iso_3166_1'])
+                        countryID = country['iso_3166_1']
+                        old+=1
+                except Country.DoesNotExist:
+                        countryID = Country.addCountry(country)
+                        new+=1
+                        ProductionCountry.addProductionCountry(tmdbID, countryID)
+        print('new: {}, old:{}'.format(new,old))
+        new = 0
+        old = 0
+        print('languages: {}'.format(len(movie['spoken_languages'])))
+        for language in movie['spoken_languages']:
+                try:
+                        languageID = Language.objects.get(pk=language['iso_639_1'])
+                        languageID = language['iso_639_1']
+                        old+=1
+                except Language.DoesNotExist:
+                        languageID = Language.addLanguage(language)
+                        new+=1
+                        SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
+        print('new: {}, old:{}'.format(new,old))
+        new = 0
+        old = 0
+        credits = movie['credits']
+        print('cast: {}'.format(len(credits['cast'])))
+        # cast & crew
+        for personData in credits['cast']:
+                try:
+                        person = Person.objects.get(pk=personData['id'])
+                        old+=1
+                except Person.DoesNotExist:
+                        person = tmdb_api_wrap.getPersonByID(personData['id'])
+                        Person.addPerson(person)
+                        new+=1
+                        WorkedAsCast.addPersonToCast(personData, tmdbID)
+        print('new: {}, old:{}'.format(new,old))
+        new = 0
+        old = 0
+        print('crew: {}'.format(len(credits['crew'])))
+        for personData in credits['crew']:
+                try:
+                        person = Person.objects.get(pk=personData['id'])
+                        old+=1
+                except Person.DoesNotExist:
+                        person = tmdb_api_wrap.getPersonByID(personData['id'])
+                        Person.addPerson(person)
+                        new+=1
+                        WorkedAsCrew.addPersonToCrew(personData, tmdbID)
+        print('new: {}, old:{}'.format(new,old))
+        return HttpResponseRedirect('/movie/%d' % tmdbID)
+    return HttpResponseRedirect('/')
+
 #List view (lists)
 def lists(request):
     context = {}
