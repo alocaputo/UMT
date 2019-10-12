@@ -167,7 +167,7 @@ def getFilmography(personID):
 		if 'release_date' in c:
 			rd =  c['release_date']
 		else:
-			rd = 0
+			rd = ''
 		job = {	'id': c['id'],
 								'title': c['title'],
 								'release_date': rd,

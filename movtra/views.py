@@ -551,8 +551,36 @@ def saveReview(request, tmdbID):
 def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
-    #pprint.pprint(filmography)
-    crew_slug = {k.replace(' ', '_'): v for k, v in filmography['crew'].items()}
+    
+    # horrible way to get sorted filmography
+    s = {}
+    for j, q in filmography['crew'].items():       
+        res = {}
+        for k, v in q.items():
+            res[v['id']] = v['release_date']
+        rd = sorted(res.values())
+        m = 0
+        y=0
+
+        # put blanks at the end of the array
+        while y<len(rd) and rd[m] == '':
+            n = 0
+            while n<len(rd)-1:
+                rd[n] = rd[n+1]
+                n +=1
+            rd[len(rd)-1] = ''
+            y +=1
+
+        ps = {}
+
+        for k, v in q.items():
+            i = rd.index(v['release_date'])
+            ps[i] = v
+        sps = dict(sorted(ps.items()))
+        s[j] = sps
+
+    
+    crew_slug = {k.replace(' ', '_'): v for k, v in s.items()}
     context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew'], 'crew_slug': crew_slug}
     return render(request, 'movtra/personDetail.html', context)
 
