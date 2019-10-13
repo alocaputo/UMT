@@ -21,7 +21,9 @@
     </div>
   </div>
   <div>
-      <span>Page: 1 of {{ total_pages }} </span>
+      <span>Page: {{page}} of {{ total_pages }} </span>
+      {% if isBack %}<a href="{% url 'movtra:results' query back_page %}">back</a>{% endif %}
+      {% if isNext %}<a href="{% url 'movtra:results' query next_page %}">next</a>{% endif %}
   </div>
   <style>
     img{
@@ -56,9 +58,6 @@
         
         {% endfor %}
     </div>
-  </div>
-  <div>
-      <span>Page: 1 of {{ total_pages }} </span>
   </div>
   <style>
     img{

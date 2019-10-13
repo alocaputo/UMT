@@ -59,7 +59,7 @@ def getMovieByName(movieName, pageNumber):
     total_pages =  json_r['total_pages']
     total_results =  json_r['total_results']
     results = json_r['results']
-    pprint.pprint(results)
+    #pprint.pprint(results)
     return (results, total_pages, total_results)
 
 def getMovieByImdbID(imdbID):

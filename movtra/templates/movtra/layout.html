@@ -18,7 +18,7 @@
   <a href="/nowplaying" class="button">Now Playing</a>
 
 
-<form  id="form1" action="{% url 'movtra:results' %}" method="post" >
+<form  id="form1" action="{% url 'movtra:results' 'a' 1 %}" method="post" >
        	{% csrf_token %}
         
           <input id="search" name="searchTitle" type="text" placeholder="Search"></input>

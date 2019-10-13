@@ -134,13 +134,35 @@ def logMovie(request):
 
 
 #TODO: add next page
-def results(request):
-    movieName = request.POST.get('searchTitle')
+def results(request, query, page):
+    pprint.pprint(request.POST)
+    if page != '':
+        page = page
+    else:
+        page = 1
+    if request.method == 'POST':
+            movieName = request.POST.get('searchTitle')
+            if movieName == '':
+                movieName = query
+    else:
+        movieName = query
+    query = movieName
+
     if ' ' in movieName:
         movieName = movieName.replace(' ','+')
-    results = tmdb_api_wrap.getMovieByName(movieName,1)
+    results = tmdb_api_wrap.getMovieByName(movieName,page)
     total_pages = results[1]
-    context = {'results': results[0] , 'total_pages': total_pages, 'type': 0}
+
+    if page == total_pages:
+        isNext = False
+    else:
+        isNext = True
+    
+    if page == 1:
+        isBack = False
+    else:
+        isBack = True
+    context = {'query': movieName ,'next_page': int(page)+1, 'isNext': isNext, 'back_page': int(page)-1 ,'isBack': isBack, 'page': page, 'results': results[0] , 'total_pages': total_pages, 'type': 0}
     return render(request, 'movtra/results.html', context)
 
 
