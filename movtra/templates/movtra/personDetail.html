@@ -21,7 +21,8 @@
 		</div>
 	
 		<div class="col-sm-3 ">
-			
+			{% for movie in watched %}{{movie}}{% endfor %}
+
 			<div class="dropdown">
 					<button class="dropbtn" id="jobs_button">Select job</button>
 					<div class="dropdown-content">

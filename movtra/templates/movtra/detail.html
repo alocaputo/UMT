@@ -16,18 +16,18 @@
 				
 				{% if local %}
 				<p>Director(s):
-				{% for job in directors %}
-					<a href="{% url 'movtra:personDetail' job.person.id %}">{{job.person.name}}</a>
-				{% endfor %}
+					{% for k, v in directors.items %}
+						<a href="{% url 'movtra:personDetail' v.id %}">{{v.name}}</a>
+					{% endfor %}
 				</p>
 				<p>Genres: 
 					{% for genre in genres %}
-						{{genre}}
+						{{genre.name}}
 					{% endfor %}</p>
 				{% else %}
 				<p>Director(s): 
 						{% for k, v in directors.items %}
-						<a href="{% url 'movtra:personDetail' v.id %}">{{v.name}}</a>
+							<a href="{% url 'movtra:personDetail' v.id %}">{{v.name}}</a>
 						{% endfor %}
 					</p>
 				<p>Genres: {%for g in genres%}{{g.name}} {% endfor%}</p>

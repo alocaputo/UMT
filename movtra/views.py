@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
-from .models import Movie, List, isIn, Genres, isGenre, Person, WorkedAsCast, WorkedAsCrew, Company, Produce, Country, ProductionCountry, Language, SpokenLanguage, LogEntry
+from .models import Movie, List, isIn, Genres, isGenre, WorkedAsCast, WorkedAsCrew, Company, Produce, Country, ProductionCountry, Language, SpokenLanguage, LogEntry
 from .utils import tmdb_api_wrap
 import pprint
 import csv
@@ -85,7 +85,17 @@ def detail(request, tmdbID):
             for g in isgenre:
                 genres.append(g.genre.name)
             #crew = WorkedAsCrew.objects.filter(movie=movie,job="Director")
-            directors = WorkedAsCrew.objects.filter(movie=movie,job="Director")
+            #directors = WorkedAsCrew.objects.filter(movie=movie,job="Director")
+            mov = tmdb_api_wrap.getMovieByID(tmdbID)
+            genres=mov['genres']
+            directors = {}
+            dID=0
+            for p in mov['credits']['crew']:
+               if p['job'] == 'Director':
+                    pprint.pprint(p)
+                    directors[dID] = {'name': p['name'], 'id': p['id']}
+                    dID+=1
+            pprint.pprint(directors)
             #directors = {}
             #dID=0
             #for p in crew:
@@ -233,29 +243,11 @@ def addMovie(tmdbID):
             print('cast: {}'.format(len(credits['cast'])))
             # cast & crew
             for personData in credits['cast']:
-                    try:
-                            person = Person.objects.get(pk=personData['id'])
-                            old+=1
-                    except Person.DoesNotExist:
-                            person = tmdb_api_wrap.getPersonByID(personData['id'])
-                            Person.addPerson(person)
-                            new+=1
-                            WorkedAsCast.addPersonToCast(personData, tmdbID)
-            print('new: {}, old:{}'.format(new,old))
-            new = 0
-            old = 0
-            print('crew: {}'.format(len(credits['crew'])))
+                WorkedAsCast.addPersonToCast(personData, tmdbID)
             for personData in credits['crew']:
-                    try:
-                            person = Person.objects.get(pk=personData['id'])
-                            old+=1
-                    except Person.DoesNotExist:
-                            person = tmdb_api_wrap.getPersonByID(personData['id'])
-                            Person.addPerson(person)
-                            new+=1
-                            WorkedAsCrew.addPersonToCrew(personData, tmdbID)
-            print('new: {}, old:{}'.format(new,old))
-            
+                new+=1
+                WorkedAsCrew.addPersonToCrew(personData, tmdbID)      
+                      
         except Exception as e:
             print("orco can")
             print(e)
@@ -332,28 +324,10 @@ def updateData(request, tmdbID):
         print('cast: {}'.format(len(credits['cast'])))
         # cast & crew
         for personData in credits['cast']:
-                try:
-                        person = Person.objects.get(pk=personData['id'])
-                        old+=1
-                except Person.DoesNotExist:
-                        person = tmdb_api_wrap.getPersonByID(personData['id'])
-                        Person.addPerson(person)
-                        new+=1
-                        WorkedAsCast.addPersonToCast(personData, tmdbID)
-        print('new: {}, old:{}'.format(new,old))
-        new = 0
-        old = 0
-        print('crew: {}'.format(len(credits['crew'])))
+            WorkedAsCast.addPersonToCast(personData, tmdbID)
         for personData in credits['crew']:
-                try:
-                        person = Person.objects.get(pk=personData['id'])
-                        old+=1
-                except Person.DoesNotExist:
-                        person = tmdb_api_wrap.getPersonByID(personData['id'])
-                        Person.addPerson(person)
-                        new+=1
-                        WorkedAsCrew.addPersonToCrew(personData, tmdbID)
-        print('new: {}, old:{}'.format(new,old))
+            new+=1
+            WorkedAsCrew.addPersonToCrew(personData, tmdbID)    
         return HttpResponseRedirect('/movie/%d' % tmdbID)
     return HttpResponseRedirect('/')
 
@@ -574,6 +548,11 @@ def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
     
+    
+    watched = Movie.objects.raw("""select distinct movtra_movie.id
+                                    from  movtra_workedascrew, movtra_movie
+                                    where  movtra_workedascrew.personID="""+str(tmdbID)+""" and movtra_movie.id=movtra_workedascrew.movie_id""")
+    pprint.pprint(watched)
     # horrible way to get sorted filmography
     s = {}
     for j, q in filmography['crew'].items():       
@@ -603,7 +582,7 @@ def personDetail(request, tmdbID):
 
     
     crew_slug = {k.replace(' ', '_'): v for k, v in s.items()}
-    context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew'], 'crew_slug': crew_slug}
+    context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew'], 'crew_slug': crew_slug, 'watched':watched}
     return render(request, 'movtra/personDetail.html', context)
 
 #TODO cache manager

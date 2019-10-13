@@ -127,7 +127,7 @@ class isGenre(models.Model):
 		isgenre.movie = Movie.objects.get(id=movie)
 		isgenre.genre = Genres.objects.get(id=genre)
 		isgenre.save()
-
+"""
 class Person(models.Model):
 	id = models.IntegerField(primary_key=True)
 	birthday = models.DateField(null=True, blank=True)
@@ -159,39 +159,43 @@ class Person(models.Model):
 		newPerson.imdb_id = data['imdb_id']
 		newPerson.homepage = data['homepage']
 		newPerson.save()
-
+"""
 class WorkedAsCast(models.Model):
 	movie = models.ForeignKey(Movie, on_delete=models.DO_NOTHING)
-	person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
+	personID = models.CharField(blank=True, null=True, max_length=100)
+	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
 	character = models.CharField(blank=True, null=True, max_length=100)
 	order = models.IntegerField(null=True, blank=True)
 
 	def __str__(self):
-		return self.movie.title + " | " + self.person.name
+		return self.movie.title + " | " + self.personID
 
 	def addPersonToCast(role, movieID):
 		newRole = WorkedAsCast()
 		newRole.movie = Movie.objects.get(id=movieID)
-		newRole.person = Person.objects.get(id=role['id'])
+		#newRole.person = Person.objects.get(id=role['id'])
+		newRole.personID = role['id']
 		newRole.character = role['character']
 		newRole.order = role['order']
 		newRole.save()
 
 class WorkedAsCrew(models.Model):
 	movie = models.ForeignKey(Movie, on_delete=models.DO_NOTHING)
-	person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
+	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
+	personID = models.CharField(blank=True, null=True, max_length=100)
 	credit_id = models.CharField(blank=True, null=True, max_length=100)
 	department = models.CharField(blank=True, null=True, max_length=100)
 	job = models.CharField(blank=True, null=True, max_length=100)
 	order = models.IntegerField(null=True, blank=True)
 
 	def __str__(self):
-		return self.movie.title + " | " + self.person.name
+		return self.movie.title + " | " + self.personID
 
 	def addPersonToCrew(role, movieID):
 		newJob = WorkedAsCrew()
 		newJob.movie = Movie.objects.get(id=movieID)
-		newJob.person = Person.objects.get(id=role['id'])
+		#newJob.person = Person.objects.get(id=role['id'])
+		newJob.personID = role['id']
 		newJob.credit_id = role['credit_id']
 		newJob.department = role['department']
 		newJob.job = role['job']
