@@ -39,6 +39,7 @@
 				<p>tmdb: {{movie.vote_average}} [{{movie.vote_count}}]</p>
 				
 				<p>Release date: {{movie.release_date}}</p>
+				{% if local %}
 				<div>
 				<form action="{% url 'movtra:updateData' movie.id %}" method="post">
 					{% csrf_token %}
@@ -47,6 +48,7 @@
 		
 				  </form>
 				</div>
+				{% endif %}
 			</fieldset>
 		</div>
 

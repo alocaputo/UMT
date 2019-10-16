@@ -45,8 +45,8 @@ class Movie(models.Model):
 				movie = None
 			if movie is None:
 				movie = Movie()
-			
-			movie.id = data['id']
+				movie.id = data['id']
+				
 			movie.adult = data['adult']
 			if( data['belongs_to_collection'] is not None):
 				movie.belongs_to_collection = data['belongs_to_collection']['id']

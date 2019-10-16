@@ -11,7 +11,6 @@
 				<img src="https://image.tmdb.org/t/p/w300{{person.profile_path }}">
 				<p>Birthday: {{person.birthday}}</p>
 				<p>Place of Birth: {{person.place_of_birth}}</p>
-				<input type="button" id="update_data" value="Update data">
 			</fieldset>
 		</div>
 	
@@ -21,23 +20,22 @@
 		</div>
 	
 		<div class="col-sm-3 ">
-			{% for movie in watched %}{{movie}}{% endfor %}
+			{% for movie in watched %}{{movie.id}}{% endfor %}
 
 			<div class="dropdown">
 					<button class="dropbtn" id="jobs_button">Select job</button>
 					<div class="dropdown-content">
 							{% for job, v in crew_slug.items %}
-							
-									<a onclick="myFunction({{job}})" class="dropbtn2">{{job}}</a>
-								{% endfor %}
+								<a onclick="myFunction({{job}})" class="dropbtn2">{{job}}</a>
+							{% endfor %}
 					</div>
 			</div> 
 
 			<div id="job_list">
 				{% for job, v in crew_slug.items %}
-					<div id={{job}} style="display: none;" class=jobbe>
+					<div id={{job}} style="display: none;" class=job_type>
 						{% for k, m in v.items %}
-							<a  href="{% url 'movtra:detail' m.id %}" id={{k}}><p>{{m.title}} ({{m.release_date |make_list|slice:':-6'|join:'' }})&nbsp;</p></a>
+							<a  href="{% url 'movtra:detail' m.id %}" id={{k}}><p>{{m.title}} ({{m.release_date |make_list|slice:':-6'|join:'' }}){% for wm in watched %}{% if wm == m.id %} ✓{% endif %}{% endfor %} &nbsp;</p></a>
 						{% endfor %}
 					</div>
 				{% endfor %}
@@ -105,9 +103,9 @@ img{
 <script>
 function myFunction(y) {
 	var x = document.getElementById(y);
-	var jobbe = document.getElementsByClassName("jobbe");
-	for (var i=0; i< jobbe.length; i++){
-		jobbe[i].style.display = "none";
+	var job_type = document.getElementsByClassName("job_type");
+	for (var i=0; i< job_type.length; i++){
+		job_type[i].style.display = "none";
 	}
 	
 	var jb = document.getElementById('jobs_button');

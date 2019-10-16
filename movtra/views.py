@@ -185,68 +185,54 @@ def addMovie(tmdbID):
         movie = tmdb_api_wrap.getMovieByID(tmdbID)
         try:
             mov = Movie.addShow(movie)
-            new = 0
-            old = 0
-            print('genres: {}'.format(len(movie['genres'])))
             for genre in movie['genres']:
-                    try:
-                            genreID = Genres.objects.get(pk=genre['id'])
-                            genreID = genre['id']
-                            old+=1
-                    except Genres.DoesNotExist:
-                            genreID = Genres.addGenre(genre)
-                            new+=1
-                            isGenre.addGenreToMovie(tmdbID,genreID)
-            print('new: {}, old:{}'.format(new,old))
-            new = 0
-            old = 0
-            print('companies: {}'.format(len(movie['production_companies'])))
+                try:
+                    genreID = Genres.objects.get(pk=genre['id'])
+                    genreID = genre['id']
+                except Genres.DoesNotExist:
+                    genreID = Genres.addGenre(genre)
+                    isGenre.addGenreToMovie(tmdbID,genreID)
             for company in movie['production_companies']:
-                    try:
-                            companyID = Company.objects.get(pk=company['id'])
-                            companyID = company['id']
-                            old+=1
-                    except Company.DoesNotExist:
-                            companyID = Company.addNewCompany(company)
-                            new+=1
-                            Produce.addProdutionCompany(tmdbID, companyID)
-            print('new: {}, old:{}'.format(new,old))
-            new = 0
-            old = 0
-            print('countries: {}'.format(len(movie['production_countries'])))
+                try:
+                    companyID = Company.objects.get(pk=company['id'])
+                    companyID = company['id']
+                except Company.DoesNotExist:
+                    companyID = Company.addNewCompany(company)
+                    Produce.addProdutionCompany(tmdbID, companyID)
+
             for country in movie['production_countries']:
-                    try:
-                            countryID = Country.objects.get(pk=country['iso_3166_1'])
-                            countryID = country['iso_3166_1']
-                            old+=1
-                    except Country.DoesNotExist:
-                            countryID = Country.addCountry(country)
-                            new+=1
-                            ProductionCountry.addProductionCountry(tmdbID, countryID)
-            print('new: {}, old:{}'.format(new,old))
-            new = 0
-            old = 0
-            print('languages: {}'.format(len(movie['spoken_languages'])))
+                try:
+                    countryID = Country.objects.get(pk=country['iso_3166_1'])
+                    countryID = country['iso_3166_1']
+                except Country.DoesNotExist:
+                    countryID = Country.addCountry(country)
+                    ProductionCountry.addProductionCountry(tmdbID, countryID)
             for language in movie['spoken_languages']:
-                    try:
-                            languageID = Language.objects.get(pk=language['iso_639_1'])
-                            languageID = language['iso_639_1']
-                            old+=1
-                    except Language.DoesNotExist:
-                            languageID = Language.addLanguage(language)
-                            new+=1
-                            SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
-            print('new: {}, old:{}'.format(new,old))
-            new = 0
-            old = 0
-            credits = movie['credits']
-            print('cast: {}'.format(len(credits['cast'])))
+                try:
+                    languageID = Language.objects.get(pk=language['iso_639_1'])
+                    languageID = language['iso_639_1']
+                except Language.DoesNotExist:
+                    languageID = Language.addLanguage(language)
+                    SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
             # cast & crew
+            credits = movie['credits']
             for personData in credits['cast']:
-                WorkedAsCast.addPersonToCast(personData, tmdbID)
+                try:
+                    WorkedAsCast.objects.get(movie = mov, 
+                                        personID = personData['id'], 
+                                        character = personData['character'],
+                                        order = personData['order'])
+                except WorkedAsCast.DoesNotExist:
+                    WorkedAsCast.addPersonToCast(personData, tmdbID)
             for personData in credits['crew']:
-                new+=1
-                WorkedAsCrew.addPersonToCrew(personData, tmdbID)      
+                try:
+                    WorkedAsCrew.objects.get(movie = mov, 
+                                        personID = personData['id'], 
+                                        credit_id = personData['credit_id'],
+		                                department = personData['department'],
+		                                job = personData['job'])
+                except WorkedAsCrew.DoesNotExist:
+                    WorkedAsCrew.addPersonToCrew(personData, tmdbID)      
                       
         except Exception as e:
             print("orco can")
@@ -266,68 +252,53 @@ def updateData(request, tmdbID):
             print('Movie not present in the db')
         movie = tmdb_api_wrap.getMovieByID(tmdbID)
         Movie.addShow(movie)
-        new = 0
-        old = 0
-        print('genres: {}'.format(len(movie['genres'])))
         for genre in movie['genres']:
             try:
-                    genreID = Genres.objects.get(pk=genre['id'])
-                    genreID = genre['id']
-                    old+=1
+                genreID = Genres.objects.get(pk=genre['id'])
+                genreID = genre['id']
             except Genres.DoesNotExist:
-                    genreID = Genres.addGenre(genre)
-                    new+=1 
-                    isGenre.addGenreToMovie(tmdbID,genreID)
-        print('new: {}, old:{}'.format(new,old))
-        new = 0
-        old = 0
-        print('companies: {}'.format(len(movie['production_companies'])))
+                genreID = Genres.addGenre(genre)
+                isGenre.addGenreToMovie(tmdbID,genreID)
         for company in movie['production_companies']:
-                try:
-                        companyID = Company.objects.get(pk=company['id'])
-                        companyID = company['id']
-                        old+=1
-                except Company.DoesNotExist:
-                        companyID = Company.addNewCompany(company)
-                        new+=1
-                        Produce.addProdutionCompany(tmdbID, companyID)
-        print('new: {}, old:{}'.format(new,old))
-        new = 0
-        old = 0
-        print('countries: {}'.format(len(movie['production_countries'])))
+            try:
+                companyID = Company.objects.get(pk=company['id'])
+                companyID = company['id']
+            except Company.DoesNotExist:
+                companyID = Company.addNewCompany(company)
+                Produce.addProdutionCompany(tmdbID, companyID)
         for country in movie['production_countries']:
-                try:
-                        countryID = Country.objects.get(pk=country['iso_3166_1'])
-                        countryID = country['iso_3166_1']
-                        old+=1
-                except Country.DoesNotExist:
-                        countryID = Country.addCountry(country)
-                        new+=1
-                        ProductionCountry.addProductionCountry(tmdbID, countryID)
-        print('new: {}, old:{}'.format(new,old))
-        new = 0
-        old = 0
-        print('languages: {}'.format(len(movie['spoken_languages'])))
+            try:
+                countryID = Country.objects.get(pk=country['iso_3166_1'])
+                countryID = country['iso_3166_1']
+            except Country.DoesNotExist:
+                countryID = Country.addCountry(country)
+                ProductionCountry.addProductionCountry(tmdbID, countryID)
         for language in movie['spoken_languages']:
-                try:
-                        languageID = Language.objects.get(pk=language['iso_639_1'])
-                        languageID = language['iso_639_1']
-                        old+=1
-                except Language.DoesNotExist:
-                        languageID = Language.addLanguage(language)
-                        new+=1
-                        SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
-        print('new: {}, old:{}'.format(new,old))
-        new = 0
-        old = 0
-        credits = movie['credits']
-        print('cast: {}'.format(len(credits['cast'])))
+            try:
+                languageID = Language.objects.get(pk=language['iso_639_1'])
+                languageID = language['iso_639_1']
+            except Language.DoesNotExist:
+                languageID = Language.addLanguage(language)
+                SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
         # cast & crew
+        credits = movie['credits']
         for personData in credits['cast']:
-            WorkedAsCast.addPersonToCast(personData, tmdbID)
+            try:
+                WorkedAsCast.objects.get(movie = mov, 
+                                        personID = personData['id'], 
+                                        character = personData['character'],
+                                        order = personData['order'])
+            except WorkedAsCast.DoesNotExist:
+                WorkedAsCast.addPersonToCast(personData, tmdbID)
         for personData in credits['crew']:
-            new+=1
-            WorkedAsCrew.addPersonToCrew(personData, tmdbID)    
+            try:
+                WorkedAsCrew.objects.get(movie = mov, 
+                                    personID = personData['id'], 
+                                    credit_id = personData['credit_id'],
+                                    department = personData['department'],
+                                    job = personData['job'])
+            except WorkedAsCrew.DoesNotExist:
+                WorkedAsCrew.addPersonToCrew(personData, tmdbID)        
         return HttpResponseRedirect('/movie/%d' % tmdbID)
     return HttpResponseRedirect('/')
 
@@ -549,10 +520,12 @@ def personDetail(request, tmdbID):
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
     
     
-    watched = Movie.objects.raw("""select distinct movtra_movie.id
+    raw_watched = Movie.objects.raw("""select distinct movtra_movie.id
                                     from  movtra_workedascrew, movtra_movie
                                     where  movtra_workedascrew.personID="""+str(tmdbID)+""" and movtra_movie.id=movtra_workedascrew.movie_id""")
-    pprint.pprint(watched)
+    watched = []
+    for w in raw_watched:
+        watched.append(int(w.id))
     # horrible way to get sorted filmography
     s = {}
     for j, q in filmography['crew'].items():       
