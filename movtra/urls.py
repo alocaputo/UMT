@@ -33,7 +33,6 @@ urlpatterns = [
 
 	path('lists/<int:id>/addToList/addMovieToList', views.addMovieToList, name='addMovieToList'),
 	path('lists/newList', views.newList, name='newList'),
-	url(r'^seen', views.seen, name='seen'),
 	url(r'^logMovie', views.logMovie, name='logMovie'),
 	path('results/<str:query>/<int:page>', views.results, name='results'),
 	url(r'^remove/$', views.editListsAjax, name='remove'),

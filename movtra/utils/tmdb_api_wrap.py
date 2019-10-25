@@ -1,4 +1,4 @@
-from tmdbv3api import TMDb, Movie, Person
+#from tmdbv3api import TMDb, Movie, Person
 import tmdbsimple as tmdb
 import requests
 import json
@@ -13,16 +13,13 @@ import os
 from os.path import join, dirname
 from dotenv import load_dotenv
 
+baseUrl = 'https://api.themoviedb.org/3'
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 apikey = os.getenv('APIKEY')
-def getToken():
-	tmdb = TMDb()
-	tmdb.api_key = apikey
-	return tmdb
 
 def getMovieByID(tmdbID):
-	url = 'https://api.themoviedb.org/3/movie/'+ str(tmdbID) +'?api_key=' + apikey + "&append_to_response=credits"
+	url = baseUrl + '/movie/'+ str(tmdbID) +'?api_key=' + apikey + "&append_to_response=credits"
 	if(tmdbID != None):
 		json_r = requests.get(url).json()
 		movie_info = {}
@@ -53,7 +50,7 @@ def getMovieByID(tmdbID):
 		return json_r
 
 def getMovieByName(movieName, pageNumber):
-    url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + str(pageNumber)
+    url = baseUrl + '/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + str(pageNumber)
 	#+'&year=1967'
     json_r = requests.get(url).json()
     total_pages =  json_r['total_pages']
@@ -63,7 +60,7 @@ def getMovieByName(movieName, pageNumber):
     return (results, total_pages, total_results)
 
 def getMovieByImdbID(imdbID):
-	url = 'https://api.themoviedb.org/3/find/'+ imdbID +'?api_key='+ apikey +'&external_source=imdb_id'
+	url = baseUrl + '/find/'+ imdbID +'?api_key='+ apikey +'&external_source=imdb_id'
 	json_r = requests.get(url).json()
 	tmdbID = json_r['movie_results'][0]['id']
 
@@ -132,84 +129,93 @@ def importTest():
 			#res.append(row[1])
 		print('sadasd')
 
+#TODO
 def getPersonID(name):
-	url = 'http://api.tmdb.org/3/search/person?api_key='+ apikey +'&query=quentin%20tarantino'
+	url = baseUrl + '/search/person?api_key='+ apikey +'&query=quentin%20tarantino'
 	return True
 
 def getFilmography(personID):
-	url = 'https://api.themoviedb.org/3/person/'+ str(personID) +'/movie_credits?api_key=' + apikey + '&language=en-US'
+	url = baseUrl + '/person/'+ str(personID) +'/movie_credits?api_key=' + apikey + '&language=en-US'
 	#directing
 	#acting
 	#writing
 	json_r = requests.get(url).json()
-	cast = {}
-	cID = 0
-	for c in json_r['cast']:
-		if 'release_date' in c:
-			rd =  c['release_date']
-		else:
-			rd = 0
-		cast[cID] = {'character': c['character'],
-					 'poster_path': c['poster_path'],
-					 'id': c['id'],
-					 'title': c['title'],
-					 'release_date': rd
-					}
-		cID+=1
-	crew = {}
-	ncrew = {}
-	for c in json_r['crew']:
-		if not c['job'] in ncrew:
-			ncrew[c['job']] = -1
-			crew[c['job']] = {}
-		ncrew[c['job']] += 1
-
-		if 'release_date' in c:
-			rd =  c['release_date']
-		else:
-			rd = ''
-		job = {	'id': c['id'],
-								'title': c['title'],
-								'release_date': rd,
-								'poster_path': c['poster_path']
+	if json_r['success'] != False:
+		cast = {}
+		cID = 0
+		for c in json_r['cast']:
+			if 'release_date' in c:
+				rd =  c['release_date']
+			else:
+				rd = 0
+			cast[cID] = {'character': c['character'],
+						'poster_path': c['poster_path'],
+						'id': c['id'],
+						'title': c['title'],
+						'release_date': rd
 						}
-		crew[c['job']][ncrew[c['job']]] = job
+			cID+=1
+		crew = {}
+		ncrew = {}
+		for c in json_r['crew']:
+			if not c['job'] in ncrew:
+				ncrew[c['job']] = -1
+				crew[c['job']] = {}
+			ncrew[c['job']] += 1
+
+			if 'release_date' in c:
+				rd =  c['release_date']
+			else:
+				rd = ''
+			job = {	'id': c['id'],
+									'title': c['title'],
+									'release_date': rd,
+									'poster_path': c['poster_path']
+							}
+			crew[c['job']][ncrew[c['job']]] = job
+	else:
+		cast = {}
+		crew = {}
 	return {'cast': cast, 'crew': crew}
 
+#region IT
 def getUpcoming():
-	getToken()
-	movie = Movie()
-	return movie.upcoming()
+	url = baseUrl + '/movie/upcoming?api_key=' + apikey + '&language=en-US&page=1&region=IT'
+	json_r = requests.get(url).json()
+	return json_r['results']
 
 
 def getNowPlaying():
-	getToken()
-	movie = Movie()
-	return movie.now_playing()
+	url = baseUrl + '/movie/now_playing?api_key=' + apikey + '&language=en-US&page=1&region=IT'
+	json_r = requests.get(url).json()
+	return json_r['results']
 
 def getPersonByID(personID):
-	# url = 'https://api.themoviedb.org/3/person/'+ str(personID) +'?api_key=' + apikey
+	url = 'https://api.themoviedb.org/3/person/'+ str(personID) +'?api_key=' + apikey
 	# json_r = {}
 	# if(personID != None):
 	# 	json_r = requests.get(url).json()
 	# return json_r
-	tmdb = getToken()
-	person = Person()
-	data = person.details(personID)
-	person_info = {}
-	person_info['id'] = data.id
-	person_info['birthday'] = data.birthday
-	person_info['deathday'] = data.deathday
-	person_info['name'] = data.name
-	person_info['gender'] = data.gender
-	person_info['biography'] = data.biography
-	person_info['place_of_birth'] = data.place_of_birth
-	person_info['profile_path'] = data.profile_path
-	person_info['popularity'] = data.popularity
-	person_info['adult'] = data.adult
-	person_info['imdb_id'] = data.imdb_id
-	person_info['homepage'] = data.homepage
+	#tmdb = getToken()
+	#person = Person()
 
+	data = requests.get(url).json()
+	if data['success'] != False:
+		person_info = {}
+		person_info['id'] = data['id']
+		person_info['birthday'] = data['birthday']
+		person_info['deathday'] = data['deathday']
+		person_info['name'] = data['name']
+		person_info['gender'] = data['gender']
+		person_info['biography'] = data['biography']
+		person_info['place_of_birth'] = data['place_of_birth']
+		person_info['profile_path'] = data['profile_path']
+		person_info['popularity'] = data['popularity']
+		person_info['adult'] = data['adult']
+		person_info['imdb_id'] = data['imdb_id']
+		person_info['homepage'] = data['homepage']
+	else:
+		person_info = {}
 	return person_info
 
 def searchByYear(title, year):
@@ -277,7 +283,7 @@ if __name__ == "__main__":
 	#getMovieByName('psycho')
 	#getUpcoming()
 	#getMovieByID(550)
-	#getPersonByID(7467)
+	getPersonByID(7467)
 	#letterboxdImport("/home/theloca95/letterbox/diary.csv")
 	#addToDB(21)
 	#print('done')
@@ -286,5 +292,5 @@ if __name__ == "__main__":
 	#pprint.pprint(m)
 	#pprint.pprint(importImdb('./WATCHLIST.csv'))
 	#importImdb('./WATCHLIST.csv')
-	cast = getFilmography(4429)
-	pprint.pprint(cast)
+	#cast = getFilmography(4429)
+	#pprint.pprint(cast)

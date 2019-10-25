@@ -13,51 +13,51 @@ import json
 # Create your views here.
 
 def index(request):
-    text = request.POST.get('movieName')
-    if(text != None):
-        movie = tmdb_api_wrap.getMovieByID(text)
-        Movie.addShow(movie)
-        print(text)
-    #WHY?????????????????????????????????????!!!!!!!!!!!!!!!!!!
-    latest_movies_list = Movie.objects.raw('select movtra_movie.*, movtra_logentry.* from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id where movtra_logentry.date is not null order by date desc;')
-    context = {'latest_movies_list': latest_movies_list, 'all':False}
+    latest_movies_list = Movie.objects.raw("""  select movtra_movie.*, movtra_logentry.* 
+                                                from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id 
+                                                where movtra_logentry.date is not null 
+                                                order by date desc;
+                                            """)
+    context = {'latest_movies_list': latest_movies_list, 'all': False}
     return render(request, 'movtra/index.html', context)
 
 def all(request):
-    text = request.POST.get('movieName')
-    if(text != None):
-        movie = tmdb_api_wrap.getMovieByID(text)
-        Movie.addShow(movie)
-        print(text)
     latest_movies_list = Movie.objects.order_by('-last_updated')[:20]
-    context = {'latest_movies_list': latest_movies_list, 'all':True}
+    context = {'latest_movies_list': latest_movies_list, 'all': True}
     return render(request, 'movtra/index.html', context)
 
 def upcoming(request):
     upcoming = tmdb_api_wrap.getUpcoming()
-    context = {'results': upcoming, 'type': 0}
+    context =  {'results': upcoming,
+                 'type': 0 #it's not a search
+                }
     return render(request, 'movtra/results.html', context)
 
 def nowplaying(request):
     nowplaying = tmdb_api_wrap.getNowPlaying()
-    context = {'results': nowplaying, 'type': 0}
+    context = {'results': nowplaying,
+                'type': 0 #it's not a search
+                }
     return render(request, 'movtra/results.html', context)
 
+# Return the serialization of a Movie entry
 def serialize_movie(movie_entry):
     movie = {}
     for attr,k in movie_entry.__dict__.items():
         movie[attr] = k
     return movie
 
+# Movie detail view
 def detail(request, tmdbID):
-        local = False
+        local = False # db presence flag
         try:
+            # Check if the movie is in the db
             movie = Movie.objects.get(id=tmdbID)
             movie_serialized = serialize_movie(movie)
             local = True
         except Movie.DoesNotExist:
             movie = None
-        if movie is None:
+        if movie is None: # If not present in the db, get the information
             movie = tmdb_api_wrap.getMovieByID(tmdbID)
             genres=movie['genres']
             directors = {}
@@ -72,7 +72,7 @@ def detail(request, tmdbID):
             for gen in genres:
                 g.append(gen['name'])
             return render(request, 'movtra/detail.html', {'movie': movie, 'genres': genres, 'directors': directors, 'local': local})
-        else:
+        else: # Otherwise look if it's present in any list
             isin = isIn.objects.filter(movie=movie).order_by('list')
             lists = {}
             lID=0
@@ -80,14 +80,15 @@ def detail(request, tmdbID):
                 lists[lID] = {'id': l.list.id,
                           'name': l.list.name}
                 lID+=1
+
+            # Uniform the genres and directors
             isgenre = isGenre.objects.filter(movie=movie)
             genres = []
             for g in isgenre:
                 genres.append(g.genre.name)
-            #crew = WorkedAsCrew.objects.filter(movie=movie,job="Director")
-            #directors = WorkedAsCrew.objects.filter(movie=movie,job="Director")
             mov = tmdb_api_wrap.getMovieByID(tmdbID)
             genres=mov['genres']
+            
             directors = {}
             dID=0
             for p in mov['credits']['crew']:
@@ -95,12 +96,8 @@ def detail(request, tmdbID):
                     pprint.pprint(p)
                     directors[dID] = {'name': p['name'], 'id': p['id']}
                     dID+=1
-            pprint.pprint(directors)
-            #directors = {}
-            #dID=0
-            #for p in crew:
-            #    directors[dID] = p.person.name
-            #    dID+=1
+
+            # Get diary entries
             diary_entries = LogEntry.objects.filter(movie=movie)
             diary = {}
             eID = 0
@@ -110,20 +107,9 @@ def detail(request, tmdbID):
                               'rating': e.rating,
                               'review': e.review}
                 eID+=1
-            pprint.pprint(genres)
             return render(request, 'movtra/detail.html', {'movie': movie, 'lists': lists, 'genres': genres, 'directors' : directors, 'diary': diary, 'local': local})
 
-        #return render(request, 'movtra/detail.html', {'movie': movie, 'isIn': isin, 'isGenre': isgenre, 'crew' : crew, 'diary': diary})
-
-#Not used
-def seen(request):
-    if request.method == 'POST':
-        tmdbID = request.POST.get('seen')
-        movie = get_object_or_404(Movie, pk=tmdbID)
-        if movie:
-            movie.toggleWst()
-    return redirect(request.META['HTTP_REFERER'])
-
+# Log Movie function (refactor)
 def logMovie(request):
     if request.method == 'POST':	
         date = request.POST.get('bday')
@@ -177,7 +163,7 @@ def results(request, query, page):
 
 
 
-#General purpose function to add a movie given it's id  to the dB
+# General purpose function to add a movie given its id to the dB
 def addMovie(tmdbID):
     try:
         Movie.objects.get(pk=tmdbID)
@@ -317,9 +303,7 @@ def listDetail(request, id):
     if not movies.exists:
         watched_count = 0
     else:
-        #watched_count = Movie.objects.raw('select distinct movtra_movie.* from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id join movtra_isin on movtra_isin.movie_id=movtra_movie.id where movtra_isin.list_id='+str(id) +';')
         watched_count = Movie.objects.raw('select distinct movtra_movie.* , movtra_logentry.id as log_id from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id join movtra_isin on movtra_isin.movie_id=movtra_movie.id where movtra_isin.list_id=' + str(id) + ' group by movtra_movie.id;')
-        #watched_count = Movie.objects.raw('select movtra_movie.*, movtra_logentry.date from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id order by date desc;')
         w=0
         for wc in watched_count:
             w+=1
@@ -348,7 +332,6 @@ def importList(request, id):
 #Imports movies from a letterboxd file
 def letterboxdImport(file):
     ids = []
-    p=0
     firstline = True
     i = 1
     with codecs.open(file, "r", encoding='utf-8', errors='ignore') as csvfile:
