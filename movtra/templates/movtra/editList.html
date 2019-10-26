@@ -27,13 +27,7 @@
 {% for k, v in movies.items %}
 <div id="movie{{v.id}}">
 ------------------------------------------------------------------------
-  <li>{{forloop.counter}}: <!--[
-    {% csrf_token %}
-      <input type="hidden" name="tmdbID" value="{{m.movie.id}}">
-      <a href="#" onclick="$(this).closest('form').submit();">delete</a>
-    </form>
-    ]-->
-    <!-- [<a href="{% url 'movtra:removeMovieFromList' list v.id %}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a> -->
+  <li>{{forloop.counter}}: 
     
     [<a class="removeBTN" id="movie{{v.id}}" href="#" data-movid="{{v.id}}" data-listid="{{list}}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
     {% if v.id in logentry %}
@@ -45,11 +39,7 @@
   {% if m.log_id %}
   m.log_id
   {% endif %}
-  <!--
-  <div>
-    <input type="submit" name="remove" value="Remove">
-    <input type="hidden" name="removeID" vale="{{m.id}}"></form>
-</div>-->
+
 {% endfor %}
 
 </ul>

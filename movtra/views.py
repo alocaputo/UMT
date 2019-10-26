@@ -9,7 +9,9 @@ import codecs
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core import serializers
+from django.db import IntegrityError
 import json
+from itertools import islice
 # Create your views here.
 
 def index(request):
@@ -170,7 +172,8 @@ def addMovie(tmdbID):
     except Movie.DoesNotExist:
         movie = tmdb_api_wrap.getMovieByID(tmdbID)
         try:
-            mov = Movie.addShow(movie)
+            Movie.addShow(movie)
+            mov = Movie.objects.get(pk=tmdbID)
             for genre in movie['genres']:
                 try:
                     genreID = Genres.objects.get(pk=genre['id'])
@@ -202,6 +205,9 @@ def addMovie(tmdbID):
                     SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
             # cast & crew
             credits = movie['credits']
+            print("cast")
+            cast_objs = []
+            batch_size = 0
             for personData in credits['cast']:
                 try:
                     WorkedAsCast.objects.get(movie = mov, 
@@ -209,16 +215,37 @@ def addMovie(tmdbID):
                                         character = personData['character'],
                                         order = personData['order'])
                 except WorkedAsCast.DoesNotExist:
-                    WorkedAsCast.addPersonToCast(personData, tmdbID)
+                    #WorkedAsCast.addPersonToCast(personData, tmdbID)
+                    el = WorkedAsCast(movie = mov, personID = str(personData['id']), character = personData['character'], order = int(personData['order']))
+                    cast_objs.append(el)
+                    batch_size +=1
+
+            if batch_size > 0:
+                batch = list(islice(cast_objs, batch_size))
+                WorkedAsCast.objects.bulk_create(batch, batch_size)
+
+            print("crew")
+            crew_objs = []
+            batch_size = 0
             for personData in credits['crew']:
                 try:
-                    WorkedAsCrew.objects.get(movie = mov, 
+                    WorkedAsCrew.objects.get(movie = tmdbID, 
                                         personID = personData['id'], 
                                         credit_id = personData['credit_id'],
 		                                department = personData['department'],
 		                                job = personData['job'])
                 except WorkedAsCrew.DoesNotExist:
-                    WorkedAsCrew.addPersonToCrew(personData, tmdbID)      
+                    #WorkedAsCrew.addPersonToCrew(personData, tmdbID)   
+                    el = WorkedAsCrew(movie = mov, personID = str(personData['id']), 
+                                        credit_id = personData['credit_id'],
+		                                department = personData['department'],
+		                                job = personData['job'])
+                    crew_objs.append(el)
+                    batch_size +=1 
+
+            if batch_size > 0:
+                batch = list(islice(crew_objs, batch_size))
+                WorkedAsCrew.objects.bulk_create(batch, batch_size)
                       
         except Exception as e:
             print("orco can")
@@ -381,7 +408,10 @@ def addMovieToList(request, id):
     context = {}
     if request.method == 'POST':
         listID = int(request.POST.get('listid'))
-        addMovie(id)
+        mov = addMovie(id)
+        #print(mov)
+        #print(id)
+        #print(listID)
         try:
             isIn.addShow(id,listID)
         except IntegrityError:
@@ -436,18 +466,6 @@ def editListsAjax(request):
     #return render(request, 'movtra/listsEdit.html', context)
     return JsonResponse(context)
 
-#deprecated
-def removeList(request, id):
-    if request.method == 'POST':
-        print('post')
-        list_id = int(request.POST.get('listid'))
-        List.objects.filter(id=list_id).delete()
-        print('deleted')
-        print(list_id)
-    isIn.objects.filter(list_id=id).delete()
-    List.objects.filter(id=id).delete()
-    return redirect(request.META['HTTP_REFERER'])
-
 def removeListsGET(request):
     if request.method == 'GET':
         listID = request.GET['list_id']
@@ -457,17 +475,6 @@ def removeListsGET(request):
     else:
         print("nope")
         return HttpResponse("Request method is not a GET")
-
-#deprecated
-def removeMovieFromList(request, id, tmdbID):
-    if request.method == 'POST':
-        print(id)
-        print(tmdbID)
-        print(isIn.objects.filter(list_id=id).filter(movie_id=tmdbID))
-        isIn.objects.filter(list_id=id).filter(movie_id=tmdbID).delete()
-
-    isIn.objects.filter(list_id=id).filter(movie_id=tmdbID).delete()
-    return redirect(request.META['HTTP_REFERER'])
 
 def removeMovieFromListGET(request):
     if request.method == 'GET':
