@@ -56,7 +56,7 @@
 			<p id="overview">{{movie.overview}}</p>
 			<div id="myDropdown" class="dropdown-content">
 				<div id="composeheader">
-					{{movie.title}}
+					{{movie.title}} 	(<a onclick="myFunction()">X</a>)
 				</div>
 				<form action="{% url 'movtra:logMovie' %}" method="post">{% csrf_token %}
 					<input type="hidden" name="tmdbID" value="{{movie.id}}">
@@ -89,7 +89,22 @@
 			<fieldset>
 					<h3>Diary:</h3>
 					{% for k, entry in diary.items %}
-                    <p>{{forloop.counter}}) {% if entry.date %}{{entry.date}}{% else %} No date available {% endif %} | <i class="fa fa-star"></i> {% if entry.rating %}{{entry.rating}}{% else %} No rating available {% endif %} (<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)</p>
+                    <p>{{forloop.counter}}) 
+						{% if entry.date %}
+							{{entry.date}}
+						{% else %} 
+							No date available 
+						{% endif %} 
+						| <i class="fa fa-star"></i> 
+						{% if entry.rating %}
+							{{entry.rating}}
+						{% else %} 
+							No rating available 
+						{% endif %} 
+						(<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)
+						(<a onclick="myFunction()">sa</a>)
+
+					</p>
 					{% if entry.review %}
 					<p>↳{{entry.review}}</p>
 					{% endif %}

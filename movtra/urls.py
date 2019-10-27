@@ -32,5 +32,5 @@ urlpatterns = [
 	path('lists/newList', views.newList, name='newList'),
 	url(r'^logMovie', views.logMovie, name='logMovie'),
 	path('results/<str:query>/<int:page>', views.results, name='results'),
-	url(r'^remove/$', views.editListsAjax, name='remove'),
+
 ]

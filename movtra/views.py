@@ -168,20 +168,22 @@ def results(request, query, page):
 # General purpose function to add a movie given its id to the dB
 def addMovie(tmdbID):
     try:
-        Movie.objects.get(pk=tmdbID)
+        mov = Movie.objects.get(pk=tmdbID)
     except Movie.DoesNotExist:
-        movie = tmdb_api_wrap.getMovieByID(tmdbID)
+        movie_data = tmdb_api_wrap.getMovieByID(tmdbID)
         try:
-            Movie.addShow(movie)
+            Movie.addShow(movie_data)
             mov = Movie.objects.get(pk=tmdbID)
-            for genre in movie['genres']:
+            
+            for genre in movie_data['genres']:
                 try:
                     genreID = Genres.objects.get(pk=genre['id'])
                     genreID = genre['id']
                 except Genres.DoesNotExist:
                     genreID = Genres.addGenre(genre)
                     isGenre.addGenreToMovie(tmdbID,genreID)
-            for company in movie['production_companies']:
+            
+            for company in movie_data['production_companies']:
                 try:
                     companyID = Company.objects.get(pk=company['id'])
                     companyID = company['id']
@@ -189,23 +191,25 @@ def addMovie(tmdbID):
                     companyID = Company.addNewCompany(company)
                     Produce.addProdutionCompany(tmdbID, companyID)
 
-            for country in movie['production_countries']:
+            for country in movie_data['production_countries']:
                 try:
                     countryID = Country.objects.get(pk=country['iso_3166_1'])
                     countryID = country['iso_3166_1']
                 except Country.DoesNotExist:
                     countryID = Country.addCountry(country)
                     ProductionCountry.addProductionCountry(tmdbID, countryID)
-            for language in movie['spoken_languages']:
+            
+            for language in movie_data['spoken_languages']:
                 try:
                     languageID = Language.objects.get(pk=language['iso_639_1'])
                     languageID = language['iso_639_1']
                 except Language.DoesNotExist:
                     languageID = Language.addLanguage(language)
                     SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
+            
             # cast & crew
-            credits = movie['credits']
-            print("cast")
+            credits = movie_data['credits']
+
             cast_objs = []
             batch_size = 0
             for personData in credits['cast']:
@@ -215,7 +219,6 @@ def addMovie(tmdbID):
                                         character = personData['character'],
                                         order = personData['order'])
                 except WorkedAsCast.DoesNotExist:
-                    #WorkedAsCast.addPersonToCast(personData, tmdbID)
                     el = WorkedAsCast(movie = mov, personID = str(personData['id']), character = personData['character'], order = int(personData['order']))
                     cast_objs.append(el)
                     batch_size +=1
@@ -224,7 +227,6 @@ def addMovie(tmdbID):
                 batch = list(islice(cast_objs, batch_size))
                 WorkedAsCast.objects.bulk_create(batch, batch_size)
 
-            print("crew")
             crew_objs = []
             batch_size = 0
             for personData in credits['crew']:
@@ -235,7 +237,6 @@ def addMovie(tmdbID):
 		                                department = personData['department'],
 		                                job = personData['job'])
                 except WorkedAsCrew.DoesNotExist:
-                    #WorkedAsCrew.addPersonToCrew(personData, tmdbID)   
                     el = WorkedAsCrew(movie = mov, personID = str(personData['id']), 
                                         credit_id = personData['credit_id'],
 		                                department = personData['department'],
@@ -293,8 +294,13 @@ def updateData(request, tmdbID):
             except Language.DoesNotExist:
                 languageID = Language.addLanguage(language)
                 SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
+
         # cast & crew
         credits = movie['credits']
+
+        cast_objs = []
+        batch_size = 0
+
         for personData in credits['cast']:
             try:
                 WorkedAsCast.objects.get(movie = mov, 
@@ -302,7 +308,16 @@ def updateData(request, tmdbID):
                                         character = personData['character'],
                                         order = personData['order'])
             except WorkedAsCast.DoesNotExist:
-                WorkedAsCast.addPersonToCast(personData, tmdbID)
+                el = WorkedAsCast(movie = mov, personID = str(personData['id']), character = personData['character'], order = int(personData['order']))
+                cast_objs.append(el)
+                batch_size +=1
+
+            if batch_size > 0:
+                batch = list(islice(cast_objs, batch_size))
+                WorkedAsCast.objects.bulk_create(batch, batch_size)
+
+        crew_objs = []
+        batch_size = 0
         for personData in credits['crew']:
             try:
                 WorkedAsCrew.objects.get(movie = mov, 
@@ -311,7 +326,17 @@ def updateData(request, tmdbID):
                                     department = personData['department'],
                                     job = personData['job'])
             except WorkedAsCrew.DoesNotExist:
-                WorkedAsCrew.addPersonToCrew(personData, tmdbID)        
+                el = WorkedAsCrew(movie = mov, personID = str(personData['id']), 
+                                        credit_id = personData['credit_id'],
+		                                department = personData['department'],
+		                                job = personData['job'])
+                crew_objs.append(el)
+                batch_size +=1 
+
+        if batch_size > 0:
+            batch = list(islice(crew_objs, batch_size))
+            WorkedAsCrew.objects.bulk_create(batch, batch_size)
+
         return HttpResponseRedirect('/movie/%d' % tmdbID)
     return HttpResponseRedirect('/')
 
@@ -457,14 +482,6 @@ def editLists(request):
     context['list'] = list
     return render(request, 'movtra/listsEdit.html', context)
 
-#deprecated I think
-def editListsAjax(request):
-    context = {}
-    list = List.objects.all()
-    data = serializers.serialize('json', List.objects.all(), fields=('id',))
-    context['list'] = data
-    #return render(request, 'movtra/listsEdit.html', context)
-    return JsonResponse(context)
 
 def removeListsGET(request):
     if request.method == 'GET':

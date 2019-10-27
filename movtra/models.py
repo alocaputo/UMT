@@ -69,7 +69,7 @@ class Movie(models.Model):
 			movie.video = data['video']
 			movie.vote_average = data['vote_average']
 			movie.vote_count = data['vote_count']
-			print(movie)
+			#print(movie)
 			movie.save()
 			return movie
 
@@ -162,10 +162,15 @@ class Person(models.Model):
 """
 class WorkedAsCast(models.Model):
 	movie = models.ForeignKey(Movie, on_delete=models.DO_NOTHING)
-	personID = models.CharField(blank=True, null=True, max_length=100)
-	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
+	cast_id = models.IntegerField(null=True, blank=True)
 	character = models.CharField(blank=True, null=True, max_length=100)
+	credit_id = models.CharField(primary_key=True, max_length=100)
+	gender = models.IntegerField(null=True, blank=True)
+	personID = models.IntegerField()
+	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
+	name = models.CharField(blank=True, null=True, max_length=100)
 	order = models.IntegerField(null=True, blank=True)
+	profile_path = models.CharField(blank=True, null=True, max_length=100)
 
 	def __str__(self):
 		return self.movie.title + " | " + self.personID
@@ -174,19 +179,29 @@ class WorkedAsCast(models.Model):
 		newRole = WorkedAsCast()
 		newRole.movie = Movie.objects.get(id=movieID)
 		#newRole.person = Person.objects.get(id=role['id'])
-		newRole.personID = role['id']
+		newRole.cast_id = role['cast_id']
 		newRole.character = role['character']
+		newRole.credit_id = role['credit_id']
+		newRole.gender = role['gender']
+		newRole.personID = role['id']
+		newRole.name = role['name']
 		newRole.order = role['order']
+		newRole.profile_path = role['profile_path']
 		newRole.save()
 
 class WorkedAsCrew(models.Model):
 	movie = models.ForeignKey(Movie, on_delete=models.DO_NOTHING)
 	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
-	personID = models.CharField(blank=True, null=True, max_length=100)
-	credit_id = models.CharField(blank=True, null=True, max_length=100)
+	credit_id = models.CharField(primary_key=True, max_length=100)
 	department = models.CharField(blank=True, null=True, max_length=100)
+	gender = models.IntegerField(null=True, blank=True)
+	personID = models.IntegerField()
 	job = models.CharField(blank=True, null=True, max_length=100)
-	order = models.IntegerField(null=True, blank=True)
+	name = models.CharField(blank=True, null=True, max_length=100)
+	profile_path = models.CharField(blank=True, null=True, max_length=100)
+
+
+
 
 	def __str__(self):
 		return self.movie.title + " | " + self.personID
@@ -195,10 +210,13 @@ class WorkedAsCrew(models.Model):
 		newJob = WorkedAsCrew()
 		newJob.movie = Movie.objects.get(id=movieID)
 		#newJob.person = Person.objects.get(id=role['id'])
-		newJob.personID = role['id']
 		newJob.credit_id = role['credit_id']
 		newJob.department = role['department']
+		newJob.gender = role['gender']
+		newJob.personID = role['id']
 		newJob.job = role['job']
+		newJob.name = role['name']
+		newJob.profile_path = role['profile_path']
 		newJob.save()
 
 class Company(models.Model):
