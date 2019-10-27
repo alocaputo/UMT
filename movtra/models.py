@@ -164,7 +164,7 @@ class WorkedAsCast(models.Model):
 	movie = models.ForeignKey(Movie, on_delete=models.DO_NOTHING)
 	cast_id = models.IntegerField(null=True, blank=True)
 	character = models.CharField(blank=True, null=True, max_length=100)
-	credit_id = models.CharField(primary_key=True, max_length=100)
+	credit_id = models.CharField(max_length=100)
 	gender = models.IntegerField(null=True, blank=True)
 	personID = models.IntegerField()
 	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
@@ -192,7 +192,7 @@ class WorkedAsCast(models.Model):
 class WorkedAsCrew(models.Model):
 	movie = models.ForeignKey(Movie, on_delete=models.DO_NOTHING)
 	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
-	credit_id = models.CharField(primary_key=True, max_length=100)
+	credit_id = models.CharField(max_length=100)
 	department = models.CharField(blank=True, null=True, max_length=100)
 	gender = models.IntegerField(null=True, blank=True)
 	personID = models.IntegerField()
@@ -322,7 +322,7 @@ class LogEntry(models.Model):
 			newLogEntry.date = data['date']
 		if data['rating'] != None:
 			newLogEntry.rating = float(data['rating'])
-		else: # emptry => 0
+		else: # empty => 0
 			newLogEntry.rating = float(0)
 		newLogEntry.review = data['review']
 		newLogEntry.save()

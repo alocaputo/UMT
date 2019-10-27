@@ -1,0 +1,39 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+{% if on_this_day %}
+    On this day 
+		
+        {% for movie in on_this_day %}
+        <div class="row"> {{movie.title}} [{{movie.date|make_list|slice:':-6'|join:'' }}]</div>
+        {% endfor %}
+{% endif %}
+
+<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+<script>
+    window.onload = function() {
+    
+    var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        title: {
+            text: "Genres (month) {{month}}"
+        },
+        data: [{
+            type: "pie",
+            startAngle: 240,
+            yValueFormatString: "##0.00\"%\"",
+            indexLabel: "{label} {y}",
+            dataPoints: [
+                {% for k, v in genre.items %}
+                        {y: {{v}}, label: "{{k}}" },
+				{% endfor %}
+            ]
+        }]
+    });
+    chart.render();
+    
+    }
+    </script>
+{% endblock %}

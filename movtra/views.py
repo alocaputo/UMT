@@ -12,6 +12,7 @@ from django.core import serializers
 from django.db import IntegrityError
 import json
 from itertools import islice
+from datetime import datetime
 # Create your views here.
 
 def index(request):
@@ -117,6 +118,9 @@ def logMovie(request):
         date = request.POST.get('bday')
         tmdbID = request.POST.get('tmdbID')
         rating = request.POST.get('rating')
+        print("heer")
+        print(rating)
+        print("eee")
         review = ""
         review = request.POST.get('review')
         data = {'tmdbID': tmdbID , 'date': date, 'rating': rating, 'review': review}
@@ -181,7 +185,7 @@ def addMovie(tmdbID):
                     genreID = genre['id']
                 except Genres.DoesNotExist:
                     genreID = Genres.addGenre(genre)
-                    isGenre.addGenreToMovie(tmdbID,genreID)
+                isGenre.addGenreToMovie(tmdbID,genreID)
             
             for company in movie_data['production_companies']:
                 try:
@@ -189,7 +193,7 @@ def addMovie(tmdbID):
                     companyID = company['id']
                 except Company.DoesNotExist:
                     companyID = Company.addNewCompany(company)
-                    Produce.addProdutionCompany(tmdbID, companyID)
+                Produce.addProdutionCompany(tmdbID, companyID)
 
             for country in movie_data['production_countries']:
                 try:
@@ -197,7 +201,7 @@ def addMovie(tmdbID):
                     countryID = country['iso_3166_1']
                 except Country.DoesNotExist:
                     countryID = Country.addCountry(country)
-                    ProductionCountry.addProductionCountry(tmdbID, countryID)
+                ProductionCountry.addProductionCountry(tmdbID, countryID)
             
             for language in movie_data['spoken_languages']:
                 try:
@@ -205,7 +209,7 @@ def addMovie(tmdbID):
                     languageID = language['iso_639_1']
                 except Language.DoesNotExist:
                     languageID = Language.addLanguage(language)
-                    SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
+                SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
             
             # cast & crew
             credits = movie_data['credits']
@@ -215,38 +219,73 @@ def addMovie(tmdbID):
             for personData in credits['cast']:
                 try:
                     WorkedAsCast.objects.get(movie = mov, 
-                                        personID = personData['id'], 
+                                        cast_id = int(personData['cast_id']),
                                         character = personData['character'],
-                                        order = personData['order'])
+                                        credit_id = personData['credit_id'],
+                                        gender = int(personData['gender']),
+                                        personID = str(personData['id']),        
+                                        name = personData['name'],       
+                                        order = int(personData['order']),
+                                        profile_path = personData['profile_path'])
                 except WorkedAsCast.DoesNotExist:
-                    el = WorkedAsCast(movie = mov, personID = str(personData['id']), character = personData['character'], order = int(personData['order']))
+                    el = WorkedAsCast(movie = mov,
+                                        cast_id = int(personData['cast_id']),
+                                        character = personData['character'],
+                                        credit_id = personData['credit_id'],
+                                        gender = int(personData['gender']),
+                                        personID = str(personData['id']),        
+                                        name = personData['name'],       
+                                        order = int(personData['order']),
+                                        profile_path = personData['profile_path'])
                     cast_objs.append(el)
                     batch_size +=1
-
-            if batch_size > 0:
+                        
+            # Manage the mySQL 999 varaibles limit
+            while batch_size > 0:
                 batch = list(islice(cast_objs, batch_size))
-                WorkedAsCast.objects.bulk_create(batch, batch_size)
+                
+                if batch_size> 99:
+                    WorkedAsCast.objects.bulk_create(batch[:100], batch_size)
+                    batch_size -= 100
+                else:
+                    WorkedAsCast.objects.bulk_create(batch, batch_size)
+                    batch_size = 0
 
+            
             crew_objs = []
             batch_size = 0
             for personData in credits['crew']:
                 try:
                     WorkedAsCrew.objects.get(movie = tmdbID, 
-                                        personID = personData['id'], 
                                         credit_id = personData['credit_id'],
-		                                department = personData['department'],
-		                                job = personData['job'])
+                                        department = personData['department'],
+                                        gender = int(personData['gender']),
+                                        personID = str(personData['id']), 
+                                        job = personData['job'],       
+                                        name = personData['name'],       
+                                        profile_path = personData['profile_path'])
                 except WorkedAsCrew.DoesNotExist:
-                    el = WorkedAsCrew(movie = mov, personID = str(personData['id']), 
+                    el = WorkedAsCrew(movie = mov,
                                         credit_id = personData['credit_id'],
-		                                department = personData['department'],
-		                                job = personData['job'])
+                                        department = personData['department'],
+                                        gender = int(personData['gender']),
+                                        personID = str(personData['id']), 
+                                        job = personData['job'],       
+                                        name = personData['name'],       
+                                        profile_path = personData['profile_path'])
                     crew_objs.append(el)
                     batch_size +=1 
-
-            if batch_size > 0:
+            #print(batch_size)
+            # Manage the mySQL 999 varaibles limit
+            while batch_size > 0:
                 batch = list(islice(crew_objs, batch_size))
-                WorkedAsCrew.objects.bulk_create(batch, batch_size)
+                
+                if batch_size> 99:
+                    WorkedAsCrew.objects.bulk_create(batch[:100], batch_size)
+                    batch_size -= 100
+                else:
+                    WorkedAsCrew.objects.bulk_create(batch, batch_size)
+                    batch_size = 0
                       
         except Exception as e:
             print("orco can")
@@ -272,71 +311,105 @@ def updateData(request, tmdbID):
                 genreID = genre['id']
             except Genres.DoesNotExist:
                 genreID = Genres.addGenre(genre)
-                isGenre.addGenreToMovie(tmdbID,genreID)
+            isGenre.addGenreToMovie(tmdbID,genreID)
         for company in movie['production_companies']:
             try:
                 companyID = Company.objects.get(pk=company['id'])
                 companyID = company['id']
             except Company.DoesNotExist:
                 companyID = Company.addNewCompany(company)
-                Produce.addProdutionCompany(tmdbID, companyID)
+            Produce.addProdutionCompany(tmdbID, companyID)
         for country in movie['production_countries']:
             try:
                 countryID = Country.objects.get(pk=country['iso_3166_1'])
                 countryID = country['iso_3166_1']
             except Country.DoesNotExist:
                 countryID = Country.addCountry(country)
-                ProductionCountry.addProductionCountry(tmdbID, countryID)
+            ProductionCountry.addProductionCountry(tmdbID, countryID)
         for language in movie['spoken_languages']:
             try:
                 languageID = Language.objects.get(pk=language['iso_639_1'])
                 languageID = language['iso_639_1']
             except Language.DoesNotExist:
                 languageID = Language.addLanguage(language)
-                SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
+            SpokenLanguage.addSpokenLanguage(tmdbID, languageID)
 
         # cast & crew
         credits = movie['credits']
 
         cast_objs = []
         batch_size = 0
-
+        
         for personData in credits['cast']:
             try:
                 WorkedAsCast.objects.get(movie = mov, 
-                                        personID = personData['id'], 
+                                        cast_id = int(personData['cast_id']),
                                         character = personData['character'],
-                                        order = personData['order'])
+                                        credit_id = personData['credit_id'],
+                                        gender = int(personData['gender']),
+                                        personID = str(personData['id']),        
+                                        name = personData['name'],       
+                                        order = int(personData['order']),
+                                        profile_path = personData['profile_path'])
             except WorkedAsCast.DoesNotExist:
-                el = WorkedAsCast(movie = mov, personID = str(personData['id']), character = personData['character'], order = int(personData['order']))
+                print("*here*"*25)
+                el = WorkedAsCast(movie = mov,
+                                    cast_id = int(personData['cast_id']),
+                                    character = personData['character'],
+                                    credit_id = personData['credit_id'],
+                                    gender = int(personData['gender']),
+                                    personID = str(personData['id']),        
+                                    name = personData['name'],       
+                                    order = int(personData['order']),
+                                    profile_path = personData['profile_path'])
                 cast_objs.append(el)
                 batch_size +=1
 
-            if batch_size > 0:
-                batch = list(islice(cast_objs, batch_size))
+            # Manage the mySQL 999 varaibles limit
+        while batch_size > 0:
+            batch = list(islice(cast_objs, batch_size))
+            
+            if batch_size> 99:
+                WorkedAsCast.objects.bulk_create(batch[:100], batch_size)
+                batch_size -= 100
+            else:
                 WorkedAsCast.objects.bulk_create(batch, batch_size)
+                batch_size = 0
 
         crew_objs = []
         batch_size = 0
         for personData in credits['crew']:
             try:
                 WorkedAsCrew.objects.get(movie = mov, 
-                                    personID = personData['id'], 
+                                    credit_id = personData['credit_id'],
+                                        department = personData['department'],
+                                        gender = int(personData['gender']),
+                                        personID = str(personData['id']), 
+                                        job = personData['job'],       
+                                        name = personData['name'],       
+                                        profile_path = personData['profile_path'])
+            except WorkedAsCrew.DoesNotExist:
+                el = WorkedAsCrew(movie = mov,
                                     credit_id = personData['credit_id'],
                                     department = personData['department'],
-                                    job = personData['job'])
-            except WorkedAsCrew.DoesNotExist:
-                el = WorkedAsCrew(movie = mov, personID = str(personData['id']), 
-                                        credit_id = personData['credit_id'],
-		                                department = personData['department'],
-		                                job = personData['job'])
+                                    gender = int(personData['gender']),
+                                    personID = str(personData['id']), 
+                                    job = personData['job'],       
+                                    name = personData['name'],       
+                                    profile_path = personData['profile_path'])
                 crew_objs.append(el)
                 batch_size +=1 
 
-        if batch_size > 0:
-            batch = list(islice(crew_objs, batch_size))
-            WorkedAsCrew.objects.bulk_create(batch, batch_size)
-
+        # Manage the mySQL 999 varaibles limit
+        while batch_size > 0:
+            batch = list(islice(cast_objs, batch_size))
+            
+            if batch_size> 99:
+                WorkedAsCast.objects.bulk_create(batch[:100], batch_size)
+                batch_size -= 100
+            else:
+                WorkedAsCast.objects.bulk_create(batch, batch_size)
+                batch_size = 0
         return HttpResponseRedirect('/movie/%d' % tmdbID)
     return HttpResponseRedirect('/')
 
@@ -378,7 +451,8 @@ def importList(request, id):
             print(str(i) + ': ' + str(tmdbID) + ' duplicate')
         print(str(i) + ': ' + str(tmdbID) + ' added')
     return HttpResponseRedirect('../')"""
-    letterboxdImport("/home/theloca95/letterbox/diary.csv")
+    #letterboxdImport("/home/theloca95/letterbox/diary.csv")
+    letterboxdImport("C:/Users/thelo/Desktop/diary.csv")
     return HttpResponseRedirect('../')
 
 #Imports movies from a letterboxd file
@@ -398,7 +472,10 @@ def letterboxdImport(file):
             title = row[1]
             year = row[2]
             date = row[-1]
-            rating=row[4]
+            rating = row[4]
+            if rating == '':
+                rating = None
+
             movie = tmdb_api_wrap.searchByYear(title,year)[0]
             print("{}: {}".format(i,movie['id']))
             addMovie(movie['id'])
@@ -504,6 +581,7 @@ def removeMovieFromListGET(request):
         return HttpResponse("Request method is not a GET")
 
 def removeDiaryEntry(request, tmdbID, diaryID):
+    print(tmdbId)
     LogEntry.objects.filter(id=diaryID).delete()
     return redirect(request.META['HTTP_REFERER'])
 
@@ -564,6 +642,44 @@ def personDetail(request, tmdbID):
     crew_slug = {k.replace(' ', '_'): v for k, v in s.items()}
     context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew'], 'crew_slug': crew_slug, 'watched':watched}
     return render(request, 'movtra/personDetail.html', context)
+
+# Statistics
+def stats(request):
+    # On this date
+    today = datetime.today().strftime("%m-%d")
+    on_this_day_query = """  select movtra_movie.* , movtra_logentry.date
+                                            from movtra_logentry
+                                            left join movtra_movie on movtra_logentry.movie_id = movtra_movie.id
+                                            where date like '____-{}'
+                                            """.format(today)
+    on_this_day = Movie.objects.raw(on_this_day_query)
+    
+    # Genre (month) TODO:add month selection
+    first_day = "2017-10-01"
+    last_day = "2017-10-31"
+    genre_query = """ select *, count() as count
+                        from movtra_logentry as le 
+                        left join movtra_isgenre ig on le.movie_id=ig.movie_id
+                        left join movtra_genres ge on ge.id=ig.genre_id
+                        where  le.date >= '{}' and le.date <= '{}'
+                        group by ig.genre_id
+                    """.format(first_day, last_day)
+
+    genre_raw = isGenre.objects.raw(genre_query)
+    genre = {}
+    g_tot = 0
+    for g in genre_raw:
+        genre[g.name] = g.count
+        g_tot += g.count
+
+    
+    ad = 0
+    for g in genre_raw:
+        genre[g.name] = g.count * 100 / g_tot
+        ad += g.count * 100 / g_tot
+
+    context = {'on_this_day': on_this_day, 'genre': genre, 'month': first_day[4:7] }
+    return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager
 # if (\wsdasd.jpg) exists use it else download and use it
