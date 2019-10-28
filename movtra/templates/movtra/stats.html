@@ -2,38 +2,72 @@
 
 {% block content %}
 {% if on_this_day %}
-    On this day 
-		
+    On this day {{ today}}
+    <div class="row">
         {% for movie in on_this_day %}
-        <div class="row"> {{movie.title}} [{{movie.date|make_list|slice:':-6'|join:'' }}]</div>
+        <div class="col-sm-2">
+                <div class="card">
+                 
+                    <a href="{% url 'movtra:detail' movie.id %}">
+                        <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}"></a>
+                  <div class="section darker" id="box">
+                        <h5 class="card-title">{{movie.date}}</h5>
+                        <p class="card-text">{{movie.title}}</p>
+                  </div>
+                </div>
+              </div>
+        
         {% endfor %}
+    </div>
 {% endif %}
 
-<div id="chartContainer" style="height: 300px; width: 100%;"></div>
-<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<div class="btn-group dropright">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Dropdown button
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item" href="#">Year1</a>
+      <a class="dropdown-item" href="#">Year2</a>
+      <a class="dropdown-item" href="#">Year3</a>
+    </div>
+</div>
+
+<div class="col-md-4">
+    <h1>{{month}} genres</h1>
+<canvas id="doughnutChart"></canvas>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 
 <script>
-    window.onload = function() {
-    
-    var chart = new CanvasJS.Chart("chartContainer", {
-        animationEnabled: true,
-        title: {
-            text: "Genres (month) {{month}}"
-        },
-        data: [{
-            type: "pie",
-            startAngle: 240,
-            yValueFormatString: "##0.00\"%\"",
-            indexLabel: "{label} {y}",
-            dataPoints: [
-                {% for k, v in genre.items %}
-                        {y: {{v}}, label: "{{k}}" },
-				{% endfor %}
-            ]
-        }]
-    });
-    chart.render();
-    
-    }
-    </script>
+//pie
+
+var ctxP = document.getElementById("doughnutChart").getContext('2d');
+
+var mydoughnutChart = new Chart(ctxP, {
+type: 'doughnut',
+data: {
+labels: [
+{% for k, v in genre.items %}
+    "{{k}}",
+{% endfor %} ],
+//    "Red", "Green", "Yellow", "Grey", "Dark Grey"],
+datasets: [{
+data: [
+{% for k, v in genre.items %}
+    {{v}},
+{% endfor %} ],
+//   300, 50, 100, 40, 120],
+backgroundColor: [
+{% for k, v in g_col.items %}
+    "{{v}}",
+{% endfor %} ],
+    //"#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
+//hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
+}]
+},
+options: {
+responsive: true
+}
+});
+</script>
 {% endblock %}

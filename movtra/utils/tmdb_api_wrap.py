@@ -140,7 +140,7 @@ def getFilmography(personID):
 	#acting
 	#writing
 	json_r = requests.get(url).json()
-	if json_r['success'] != False:
+	if not 'success' in json_r or json_r['success'] != False:
 		cast = {}
 		cID = 0
 		for c in json_r['cast']:
@@ -200,7 +200,7 @@ def getPersonByID(personID):
 	#person = Person()
 
 	data = requests.get(url).json()
-	if data['success'] != False:
+	if not 'success' in data or data['success'] != False:
 		person_info = {}
 		person_info['id'] = data['id']
 		person_info['birthday'] = data['birthday']

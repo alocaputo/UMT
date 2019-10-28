@@ -13,6 +13,8 @@ from django.db import IntegrityError
 import json
 from itertools import islice
 from datetime import datetime
+from datetime import timedelta
+import random
 # Create your views here.
 
 def index(request):
@@ -67,7 +69,6 @@ def detail(request, tmdbID):
             dID=0
             for p in movie['credits']['crew']:
                if p['job'] == 'Director':
-                    pprint.pprint(p)
                     directors[dID] = {'name': p['name'], 'id': p['id']}
                     dID+=1
     
@@ -96,7 +97,6 @@ def detail(request, tmdbID):
             dID=0
             for p in mov['credits']['crew']:
                if p['job'] == 'Director':
-                    pprint.pprint(p)
                     directors[dID] = {'name': p['name'], 'id': p['id']}
                     dID+=1
 
@@ -118,9 +118,6 @@ def logMovie(request):
         date = request.POST.get('bday')
         tmdbID = request.POST.get('tmdbID')
         rating = request.POST.get('rating')
-        print("heer")
-        print(rating)
-        print("eee")
         review = ""
         review = request.POST.get('review')
         data = {'tmdbID': tmdbID , 'date': date, 'rating': rating, 'review': review}
@@ -137,7 +134,6 @@ def logMovie(request):
 
 #TODO: add next page
 def results(request, query, page):
-    pprint.pprint(request.POST)
     if page != '':
         page = page
     else:
@@ -275,7 +271,6 @@ def addMovie(tmdbID):
                                         profile_path = personData['profile_path'])
                     crew_objs.append(el)
                     batch_size +=1 
-            #print(batch_size)
             # Manage the mySQL 999 varaibles limit
             while batch_size > 0:
                 batch = list(islice(crew_objs, batch_size))
@@ -288,7 +283,7 @@ def addMovie(tmdbID):
                     batch_size = 0
                       
         except Exception as e:
-            print("orco can")
+            print("Something is wrong")
             print(e)
             isGenre.objects.filter(movie=tmdbID).delete()
             Produce.objects.filter(movie=tmdbID).delete()
@@ -352,7 +347,6 @@ def updateData(request, tmdbID):
                                         order = int(personData['order']),
                                         profile_path = personData['profile_path'])
             except WorkedAsCast.DoesNotExist:
-                print("*here*"*25)
                 el = WorkedAsCast(movie = mov,
                                     cast_id = int(personData['cast_id']),
                                     character = personData['character'],
@@ -433,7 +427,6 @@ def listDetail(request, id):
         for wc in watched_count:
             w+=1
 
-    print(watched_count)
     context = {'movies': movies, 'list': listID ,'total':len(movies), 'watched': len(list(watched_count)), 'logentry': list(watched_count)}
     return render(request, 'movtra/listDetail.html', context)
 
@@ -489,9 +482,7 @@ def newList(request):
     context = {}
     if request.method == 'POST':
         listTitle = request.POST.get('listTitle')
-        print(listTitle)
         list = List.objects.all()
-        print(list)
         List.addShow(listTitle)
 
     context['list'] = list
@@ -511,9 +502,6 @@ def addMovieToList(request, id):
     if request.method == 'POST':
         listID = int(request.POST.get('listid'))
         mov = addMovie(id)
-        #print(mov)
-        #print(id)
-        #print(listID)
         try:
             isIn.addShow(id,listID)
         except IntegrityError:
@@ -567,7 +555,7 @@ def removeListsGET(request):
         isIn.objects.filter(list_id=listID).delete()
         return HttpResponse("Success!")
     else:
-        print("nope")
+        print("Something is wrong")
         return HttpResponse("Request method is not a GET")
 
 def removeMovieFromListGET(request):
@@ -577,11 +565,10 @@ def removeMovieFromListGET(request):
         isIn.objects.filter(list_id=listID).filter(movie_id=movieID).delete()
         return HttpResponse("Success!")
     else:
-        print("nope")
+        print("Something is wrong")
         return HttpResponse("Request method is not a GET")
 
 def removeDiaryEntry(request, tmdbID, diaryID):
-    print(tmdbId)
     LogEntry.objects.filter(id=diaryID).delete()
     return redirect(request.META['HTTP_REFERER'])
 
@@ -644,9 +631,18 @@ def personDetail(request, tmdbID):
     return render(request, 'movtra/personDetail.html', context)
 
 # Statistics
+def getLastDay(any_day):
+    """Finds the last day of the month in the form yyyy-mm-dd
+    :param any_day: a day of the month of which we want to find the last day
+    :return: the last day of the month
+    """
+    next_month = any_day.replace(day=28) + timedelta(days=4)
+    return (next_month - timedelta(days=next_month.day)).strftime("%Y-%m-%d")
+
 def stats(request):
     # On this date
     today = datetime.today().strftime("%m-%d")
+    month = datetime.today().strftime("%B")
     on_this_day_query = """  select movtra_movie.* , movtra_logentry.date
                                             from movtra_logentry
                                             left join movtra_movie on movtra_logentry.movie_id = movtra_movie.id
@@ -655,8 +651,11 @@ def stats(request):
     on_this_day = Movie.objects.raw(on_this_day_query)
     
     # Genre (month) TODO:add month selection
-    first_day = "2017-10-01"
-    last_day = "2017-10-31"
+    first_day = "2017-10-01" #debug
+    last_day = "2017-10-31" #debug
+    #first_day = datetime.today().replace(day=1).strftime("%Y-%m-%d")  
+    #last_day = getLastDay(datetime.today())
+
     genre_query = """ select *, count() as count
                         from movtra_logentry as le 
                         left join movtra_isgenre ig on le.movie_id=ig.movie_id
@@ -674,11 +673,13 @@ def stats(request):
 
     
     ad = 0
+    g_col = {}
     for g in genre_raw:
-        genre[g.name] = g.count * 100 / g_tot
+        genre[g.name] = round(g.count * 100 / g_tot, 2)
+        g_col[g.name] = "#%06x" % random.randint(0, 0xFFFFFF) # random hex
         ad += g.count * 100 / g_tot
 
-    context = {'on_this_day': on_this_day, 'genre': genre, 'month': first_day[4:7] }
+    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col }
     return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager
