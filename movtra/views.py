@@ -27,7 +27,7 @@ def index(request):
     return render(request, 'movtra/index.html', context)
 
 def all(request):
-    latest_movies_list = Movie.objects.order_by('-last_updated')[:20]
+    latest_movies_list = Movie.objects.order_by('-last_updated')[:24]
     context = {'latest_movies_list': latest_movies_list, 'all': True}
     return render(request, 'movtra/index.html', context)
 

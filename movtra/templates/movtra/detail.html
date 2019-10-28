@@ -5,14 +5,10 @@
 
 <div class="container">
 	<div class="row">
-		<div class="col-sm-2">
+		<div class="col-sm-3">
 			<fieldset>
-				<h3>{{ movie.title }} ({{ movie.release_date|make_list|slice:':-6'|join:'' }})</h3>
 				<h5>{{movie.tagline}}</h5>
-				{% load static %} 
-				{% static "" as baseUrl %}
 				<img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}">
-				<!--<img src="{{ baseUrl }}movtra{{movie.poster}}" height="50%"></img>-->
 				
 				{% if local %}
 				<p>Director(s):
@@ -41,90 +37,104 @@
 				<p>Release date: {{movie.release_date}}</p>
 				{% if local %}
 				<div>
-				<form action="{% url 'movtra:updateData' movie.id %}" method="post">
-					{% csrf_token %}
-					<input type="submit" name="update_data" value="Update data">
-					<input type="hidden" name="movieID" value="{{ list_id }}">
-		
-				  </form>
+					<form action="{% url 'movtra:updateData' movie.id %}" method="post" class="pr-0">
+						{% csrf_token %}
+						<div>
+						<input type="submit" name="update_data" value="Update data">
+						<input type="hidden" name="movieID" value="{{ list_id }}">
+					</div>
+					</form>
 				</div>
 				{% endif %}
 			</fieldset>
 		</div>
 
-		<div class="col-sm-6 ">
-			<p id="overview">{{movie.overview}}</p>
-			<div id="myDropdown" class="dropdown-content">
-				<div id="composeheader">
-					{{movie.title}} 	(<a onclick="myFunction()">X</a>)
-				</div>
-				<form action="{% url 'movtra:logMovie' %}" method="post">{% csrf_token %}
-					<input type="hidden" name="tmdbID" value="{{movie.id}}">
-					<div id="to">
-						Date <input type="date" name="bday">
-					</div>
-					<div id="object">
-						<p>Rating</p>
-							<fieldset class="rating">
-								<input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
-								<input type="radio" id="star4half" name="rating" value="4.5" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
-								<input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
-								<input type="radio" id="star3half" name="rating" value="3.5" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
-								<input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
-								<input type="radio" id="star2half" name="rating" value="2.5" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
-								<input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
-								<input type="radio" id="star1half" name="rating" value="1.5" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
-								<input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
-								<input type="radio" id="starhalf" name="rating" value="0.5" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>		
-							</fieldset>
-					</div>
-				<div>
-					<textarea rows="8" cols="50" name="review"></textarea>
-				</div>
-					<div id="messageBody">
-						<input type="submit" value="Log movie"> 
-					</div>
-				</form>
+		<div class="col-sm-8">
+			<div class="row mb-4">
+				<h3>{{ movie.title }} ({{ movie.release_date|make_list|slice:':-6'|join:'' }})</h3>
 			</div>
-			<fieldset>
-					<h3>Diary:</h3>
-					{% for k, entry in diary.items %}
-                    <p>{{forloop.counter}}) 
-						{% if entry.date %}
-							{{entry.date}}
-						{% else %} 
-							No date available 
-						{% endif %} 
-						| <i class="fa fa-star"></i> 
-						{% if entry.rating %}
-							{{entry.rating}}
-						{% else %} 
-							No rating available 
-						{% endif %} 
-						(<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)
-						(<a onclick="myFunction()">sa</a>)
+			<div class="row">
+				<div class="col-sm-6">
+					<p id="overview">{{movie.overview}}</p>
+					<div id="myDropdown" class="dropdown-content">
+						<div id="composeheader">
+							{{movie.title}} 	(<a onclick="myFunction()">X</a>)
+						</div>
+						<form action="{% url 'movtra:logMovie' %}" method="post">{% csrf_token %}
+							<input type="hidden" name="tmdbID" value="{{movie.id}}">
+							<div id="to">
+								Date <input type="date" name="bday">
+							</div>
+							<div id="object">
+								<p>Rating</p>
+								<fieldset class="rating">
+									<input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+									<input type="radio" id="star4half" name="rating" value="4.5" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+									<input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+									<input type="radio" id="star3half" name="rating" value="3.5" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+									<input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+									<input type="radio" id="star2half" name="rating" value="2.5" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+									<input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+									<input type="radio" id="star1half" name="rating" value="1.5" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+									<input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+									<input type="radio" id="starhalf" name="rating" value="0.5" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>		
+								</fieldset>
+							</div>
+							<div>
+								<textarea rows="8" cols="50" name="review"></textarea>
+							</div>
+							<div id="messageBody">
+								<input type="submit" value="Log movie"> 
+							</div>
+						</form>
+					</div>
+					<fieldset>
+							<h3>Diary:</h3>
+							{% for k, entry in diary.items %}
+							<p>{{forloop.counter}}) 
+								{% if entry.date %}
+									{{entry.date}}
+								{% else %} 
+									No date available 
+								{% endif %} 
+								| <i class="fa fa-star"></i> 
+								{% if entry.rating %}
+									{{entry.rating}}
+								{% else %} 
+									No rating available 
+								{% endif %} 
+								(<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)
+								(<a onclick="myFunction()">sa</a>)
 
-					</p>
-					{% if entry.review %}
-					<p>↳{{entry.review}}</p>
+							</p>
+							{% if entry.review %}
+							<p>↳{{entry.review}}</p>
+							{% endif %}
+							{% endfor %}
+					</fieldset>
+				</div>
+				<div class="col-sm">
+					<div class="row mb-4">
+						<div class="dropdown">
+							<button onclick="myFunction()" class="dropbtn">Log this movie</button>
+						</div>
+					</div>
+					{% if lists %}
+					<div class="row">
+						<h4>Lists:</h4>
+					</div>
+					<div class="row">
+						<ul>
+							{% for k,v in lists.items %}
+							<li><a href="{% url 'movtra:listDetail' v.id %}">{{v.name}}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+					{% else %}
 					{% endif %}
-					{% endfor %}
-			</fieldset>
+				</div>
+			</div>	
 		</div>
-		<div class="col-sm-3 ">
-			<div class="dropdown">
-				<button onclick="myFunction()" class="dropbtn">Log this movie</button>
-			</div>
-			{% if lists %}
-				<h4>Lists:</h4>
-				<ul>
-					{% for k,v in lists.items %}
-					<li><a href="{% url 'movtra:listDetail' v.id %}">{{v.name}}</a></li>
-					{% endfor %}
-				</ul>
-			{% else %}
-			{% endif %}
-		</div>	
 	</div>
 </div>
 
@@ -135,10 +145,10 @@
 img{
 	height: 300px;
 }
-
+/*
 #overview{
 	margin-top: 100px;
-}
+}*/
 /*
 .input-group{
 	position: absolute;
