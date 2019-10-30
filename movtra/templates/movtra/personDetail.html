@@ -5,7 +5,7 @@
 
 <div class="container">
 	<div class="row">
-		<div class="col-sm-2">
+		<div class="col-sm-3">
 			<fieldset>
 				<h3>{{ person.name }} </h3>
 				<img src="https://image.tmdb.org/t/p/w300{{person.profile_path }}">
@@ -35,7 +35,7 @@
 				{% for job, v in crew_slug.items %}
 					<div id={{job}} style="display: none;" class=job_type>
 						{% for k, m in v.items %}
-							<a  href="{% url 'movtra:detail' m.id %}" id={{k}}><p>{{m.title}} ({{m.release_date |make_list|slice:':-6'|join:'' }}){% for wm in watched %}{% if wm == m.id %} ✓{% endif %}{% endfor %} &nbsp;</p></a>
+							<a  href="{% url 'movtra:detail' m.id %}" id={{k}}><p>{{m.title}} ({{m.release_date |make_list|slice:':-6'|join:'' }}){% for wm in watched %}{% if wm == m.id %} ✓{% endif %}{% endfor %}&nbsp;</p></a>
 						{% endfor %}
 					</div>
 				{% endfor %}

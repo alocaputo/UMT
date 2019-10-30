@@ -5,34 +5,31 @@
 <div class="row">
   <form action="{% url 'movtra:newList' %}" method="post">
     {% csrf_token %}
-    <div class="col s6">
-      <input type="text" name="listTitle"><button type="submit" vaule="Create list" class="waves-effect waves-light btn">Create list</button>
+    <div class="input-group mb-3 pl-4">
+      <input type="text" class="form-control" name="listTitle"/>
+      <div class="input-group-append">
+        <button  type="submit" vaule="Create list" class="input-group-text">Create list</button>
+      </div>
     </div>
   </form>
-  <form action="{% url 'movtra:editLists' %}" method="post">
+    
+  <form action="{% url 'movtra:editLists' %}" method="post" class="pl-4">
     {% csrf_token %}
-    <input type="submit" name="edit" value="edit">
+    <input type="submit" name="edit" value="edit" class="btn btn-secondary">
 </form>
 </div>
-<div class="row">
-  <ul style="list-style-type:none">
+
+<div class="conatiner">
+    <div class="list-group list-group-flush">
     {% for l in list %}
-    --------------------------------------- 
-    <li data-label="Name"><a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></li>
+    <div class="list-group-item d-flex flex-row bd-highlight"><a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></div>
     {% endfor %}
-  </ul>
+    </div>
 </div>
 <style>
   td {
     height: 20px;
   }
-  form {
-    background: #f8f8f8;
-    border: 0px;
-    margin: .5rem;
-    padding: 0.75rem 0.5rem 1.125rem;
-    height: 30px;
-  }
-
+  
 </style>
 {% endblock %}

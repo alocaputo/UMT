@@ -1,23 +1,27 @@
 {% extends 'movtra/layout.html' %}
 
 {% block content %}
-<h1 class="center">Edit {{ list.name }}  ({{ watched }}/{{ total }})</h1>
+<h1 class="center">Editing {{ list.name }}  ({{ watched }}/{{ total }})</h1>
 
 <div class="row">
-  <div class="col s6">
-    <form action="{% url 'movtra:addToList' list %}" method="post">
+    <div class="col-sm-4">
+    <form action="{% url 'movtra:addToList' list.id %}" method="post">
       {% csrf_token %}
-      <input type="text" name="listTitle">
-      <button type="submit" vaule="Add Title" class="waves-effect waves-light btn">Add Title</button>
+      <div class="input-group mb-3 pl-4">
+      <input type="text" class="form-control" name="listTitle">
+      <div class="input-group-append">
+      <button type="submit" vaule="Add Title" class="input-group-text">Add Title</button>
+    </div>
+    </div>
     </form>
   </div>
-  <form action="{% url 'movtra:importList' list %}" method="post">
+  <form action="{% url 'movtra:importList' list.id %}" method="post" class="pl-4">
     {% csrf_token %}
-    <input type="submit" name="import" value="import">
+    <input type="submit" name="import" value="import" class="btn btn-secondary">
   </form>
-  <form action="{% url 'movtra:listDetail' list %}" method="post">
+  <form action="{% url 'movtra:listDetail' list.id %}" method="post" class="pl-2">
       {% csrf_token %}
-      <input type="submit" name="edit" value="edit">
+      <input type="submit" name="edit" value="edit" class="btn btn-secondary">
   </form>
 </div>
 
@@ -29,7 +33,7 @@
 ------------------------------------------------------------------------
   <li>{{forloop.counter}}: 
     
-    [<a class="removeBTN" id="movie{{v.id}}" href="#" data-movid="{{v.id}}" data-listid="{{list}}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
+    [<a class="removeBTN" id="movie{{v.id}}" href="#" data-movid="{{v.id}}" data-listid="{{list.id}}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
     {% if v.id in logentry %}
     watched
     {% endif %}

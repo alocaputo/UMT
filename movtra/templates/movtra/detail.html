@@ -40,7 +40,7 @@
 					<form action="{% url 'movtra:updateData' movie.id %}" method="post" class="pr-0">
 						{% csrf_token %}
 						<div>
-						<input type="submit" name="update_data" value="Update data">
+						<input class="btn btn-secondary" type="submit" name="update_data" value="Update data">
 						<input type="hidden" name="movieID" value="{{ list_id }}">
 					</div>
 					</form>
@@ -49,14 +49,14 @@
 			</fieldset>
 		</div>
 
-		<div class="col-sm-8">
-			<div class="row mb-4">
+		<div class="col-sm-9">
+			<div class="row mb-8">
 				<h3>{{ movie.title }} ({{ movie.release_date|make_list|slice:':-6'|join:'' }})</h3>
 			</div>
 			<div class="row">
-				<div class="col-sm-6">
+				<div class="col-sm-8">
 					<p id="overview">{{movie.overview}}</p>
-					<div id="myDropdown" class="dropdown-content">
+					<div id="composer" class="composer-content">
 						<div id="composeheader">
 							{{movie.title}} 	(<a onclick="myFunction()">X</a>)
 						</div>
@@ -113,10 +113,10 @@
 							{% endfor %}
 					</fieldset>
 				</div>
-				<div class="col-sm">
+				<div class="col-sm-2">
 					<div class="row mb-4">
-						<div class="dropdown">
-							<button onclick="myFunction()" class="dropbtn">Log this movie</button>
+						<div class="composer">
+							<button class="btn btn-primary" onclick="myFunction()" class="dropbtn">Log this movie</button>
 						</div>
 					</div>
 					{% if lists %}
@@ -155,12 +155,7 @@ img{
 }
 */
 
-form {
-    background: #f8f8f8;
-    border: 0px;
-    margin: .5rem;
-    padding: 0.75rem 0.5rem 1.125rem;
-}
+
 @import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
 
 /*.rating, label { margin: 0; padding: 0; }
@@ -193,7 +188,7 @@ h1 { font-size: 1.5em; margin: 10px; }
  float: right; 
 }
 
-.dropdown-content > fieldset, label { margin: 0; padding: 0; }
+.composer-content > fieldset, label { margin: 0; padding: 0; }
 /***** CSS Magic to Highlight Stars on Hover *****/
 
 .rating > input:checked ~ label, /* show gold star when clicked */
@@ -207,11 +202,11 @@ h1 { font-size: 1.5em; margin: 10px; }
 
 
 
-.dropdown-content{
+.composer-content{
   color: black;
   background-color: #a64dff;
 }
-.dropdown-content {
+.composer-content {
     display: none;
     position: absolute;
     min-width: 560px;
@@ -227,7 +222,7 @@ h1 { font-size: 1.5em; margin: 10px; }
 		$('#subrating').submit();
         }
 		function myFunction() {
-document.getElementById("myDropdown").classList.toggle("show");
+document.getElementById("composer").classList.toggle("show");
 }
 </script>
 {% endblock %}

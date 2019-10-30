@@ -416,18 +416,19 @@ def lists(request):
 
 #List view (list of movies)
 def listDetail(request, id):
-    listID = List.objects.get(id=id)
+    lst = List.objects.get(id=id)
+    movies = isIn.objects.filter(list=lst).order_by('id')
 
-    movies = isIn.objects.filter(list=listID).order_by('id')
+    # Counts the number of watched movies in the list
     if not movies.exists:
         watched_count = 0
     else:
         watched_count = Movie.objects.raw('select distinct movtra_movie.* , movtra_logentry.id as log_id from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id join movtra_isin on movtra_isin.movie_id=movtra_movie.id where movtra_isin.list_id=' + str(id) + ' group by movtra_movie.id;')
         w=0
-        for wc in watched_count:
+        for _ in watched_count:
             w+=1
 
-    context = {'movies': movies, 'list': listID ,'total':len(movies), 'watched': len(list(watched_count)), 'logentry': list(watched_count)}
+    context = {'movies': movies, 'list': lst ,'total':len(movies), 'watched': len(list(watched_count)), 'logentry': list(watched_count)}
     return render(request, 'movtra/listDetail.html', context)
 
 #Import button in list (WIP)
@@ -510,9 +511,9 @@ def addMovieToList(request, id):
     return HttpResponseRedirect('/')
 
 def editList(request, id):
-    listID = List.objects.get(id=id)
+    lst = List.objects.get(id=id)
 
-    movies = isIn.objects.filter(list=listID).order_by('id')
+    movies = isIn.objects.filter(list=lst).order_by('id')
     movs = {}
     movieIDs = []
     wmovieIDs = []
@@ -536,7 +537,7 @@ def editList(request, id):
 
     #print(watched_count)
     #context = {'movies': movieIDs, 'list': id ,'total':len(movieIDs), 'watched': w, 'logentry': list(watched_count)}
-    context = {'movies': movs, 'list': id ,'total':i, 'watched': w, 'logentry': wmovieIDs}
+    context = {'movies': movs, 'list': lst ,'total':i, 'watched': w, 'logentry': wmovieIDs}
     return render(request, 'movtra/editList.html', context)
     #return JsonResponse(context)
     #return HttpResponse(json.dumps(context))
@@ -549,8 +550,10 @@ def editLists(request):
 
 
 def removeListsGET(request):
+    pprint.pprint(request)
     if request.method == 'GET':
         listID = request.GET['list_id']
+        print(listID)
         List.objects.filter(id=listID).delete()
         isIn.objects.filter(list_id=listID).delete()
         return HttpResponse("Success!")
