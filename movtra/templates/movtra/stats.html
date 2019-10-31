@@ -31,18 +31,38 @@
         </div>
     </div>
 </div>
+<div class="row ml-0 mr-0">
+    <h3>Most watched directors of the month</h3>
+</div>
+<div class="row ml-4 mr-0">
+    {% for person in mwd %}
+    <div class="card mr-3">
+        <a href="{% url 'movtra:personDetail' person.person_id %}">
+        <img src="https://image.tmdb.org/t/p/w92{{person.profile_path}}">
+        </a>      
+    </div>
+    {% endfor %}
+</div>
+<div class="row ml-4 mr-0">
+    <h3>Most watched actors of the month</h3>
+</div>
+<div class="row ml-4 mr-0">
+    {% for person in mwa %}
+    <div class="card mr-3">
+        <a href="{% url 'movtra:personDetail' person.person_id %}">
+        <img src="https://image.tmdb.org/t/p/w92{{person.profile_path}}">
+        </a>      
+    </div>
+    {% endfor %}
+</div>
 
-<h3>Most watched directors of the month</h3>
-{% for person in mwd %}
-<a href="{% url 'movtra:personDetail' person.person_id %}">{{person.name}}</a>
-<img src="https://image.tmdb.org/t/p/w92{{person.profile_path}}">
-{% endfor %}
 <div class="row ml-0 mr-0">
     <div class="col-md-4">
         <h1>{{month}} genres</h1>
         <canvas id="doughnutChart"></canvas>
     </div>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 
 <script>

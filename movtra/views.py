@@ -691,7 +691,17 @@ def stats(request):
                     order by count desc
                 """.format(first_day, last_day)
     mwd_raw = WorkedAsCrew.objects.raw(mwd_query)
-    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw[:5] }
+
+    mwa_query = """select *, count() as count
+                    from movtra_logentry as le 
+                    left join movtra_workedascast wc on le.movie_id=wc.movie_id
+                    where  le.date >= '{}' and le.date <= '{}'
+                    group by name
+                    order by count desc
+                """.format(first_day, last_day)
+    mwa_raw = WorkedAsCast.objects.raw(mwa_query)
+
+    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw[:5], 'mwa': mwa_raw[:5] }
     return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager
