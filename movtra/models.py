@@ -166,14 +166,14 @@ class WorkedAsCast(models.Model):
 	character = models.CharField(blank=True, null=True, max_length=100)
 	credit_id = models.CharField(max_length=100)
 	gender = models.IntegerField(null=True, blank=True)
-	personID = models.IntegerField()
+	person_id = models.IntegerField()
 	#person = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
 	name = models.CharField(blank=True, null=True, max_length=100)
 	order = models.IntegerField(null=True, blank=True)
 	profile_path = models.CharField(blank=True, null=True, max_length=100)
 
 	def __str__(self):
-		return self.movie.title + " | " + self.personID
+		return self.movie.title + " | " + self.person_id
 
 	def addPersonToCast(role, movieID):
 		newRole = WorkedAsCast()
@@ -183,7 +183,7 @@ class WorkedAsCast(models.Model):
 		newRole.character = role['character']
 		newRole.credit_id = role['credit_id']
 		newRole.gender = role['gender']
-		newRole.personID = role['id']
+		newRole.person_id = role['id']
 		newRole.name = role['name']
 		newRole.order = role['order']
 		newRole.profile_path = role['profile_path']
@@ -195,7 +195,7 @@ class WorkedAsCrew(models.Model):
 	credit_id = models.CharField(max_length=100)
 	department = models.CharField(blank=True, null=True, max_length=100)
 	gender = models.IntegerField(null=True, blank=True)
-	personID = models.IntegerField()
+	person_id = models.IntegerField()
 	job = models.CharField(blank=True, null=True, max_length=100)
 	name = models.CharField(blank=True, null=True, max_length=100)
 	profile_path = models.CharField(blank=True, null=True, max_length=100)
@@ -204,7 +204,7 @@ class WorkedAsCrew(models.Model):
 
 
 	def __str__(self):
-		return self.movie.title + " | " + self.personID
+		return self.movie.title + " | " + self.person_id
 
 	def addPersonToCrew(role, movieID):
 		newJob = WorkedAsCrew()
@@ -213,7 +213,7 @@ class WorkedAsCrew(models.Model):
 		newJob.credit_id = role['credit_id']
 		newJob.department = role['department']
 		newJob.gender = role['gender']
-		newJob.personID = role['id']
+		newJob.person_id = role['id']
 		newJob.job = role['job']
 		newJob.name = role['name']
 		newJob.profile_path = role['profile_path']

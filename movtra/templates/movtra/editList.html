@@ -1,9 +1,9 @@
 {% extends 'movtra/layout.html' %}
 
 {% block content %}
-<h1 class="center">Editing {{ list.name }}  ({{ watched }}/{{ total }})</h1>
+<h1 class="text-center">Editing {{ list.name }}  ({{ watched }}/{{ total }})</h1>
 
-<div class="row">
+<div class="row ml-0 mr-0">
     <div class="col-sm-4">
     <form action="{% url 'movtra:addToList' list.id %}" method="post">
       {% csrf_token %}
@@ -25,28 +25,23 @@
   </form>
 </div>
 
-
-
-<ul>
-{% for k, v in movies.items %}
-<div id="movie{{v.id}}">
-------------------------------------------------------------------------
-  <li>{{forloop.counter}}: 
-    
-    [<a class="removeBTN" id="movie{{v.id}}" href="#" data-movid="{{v.id}}" data-listid="{{list.id}}">X</a>] <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
-    {% if v.id in logentry %}
-    watched
-    {% endif %}
-    </p>
-  </li>
+<div class="conatiner">
+  <div class="list-group list-group-flush">
+    {% for k, v in movies.items %}
+    <div class="list-group-item d-flex flex-row bd-highlight">
+      <div id="movie{{v.id}}">
+        {{forloop.counter}}: 
+        [<a class="removeBTN" id="movie{{v.id}}" href="#" data-movid="{{v.id}}" data-listid="{{list.id}}">X</a>]
+        <a href="{% url 'movtra:detail' v.id %}">{{v.title}} ({{ v.year }})</a>
+        {% if v.id in logentry %}
+          watched
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
 </div>
-  {% if m.log_id %}
-  m.log_id
-  {% endif %}
 
-{% endfor %}
-
-</ul>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
 <script type="text/javascript">

@@ -2,39 +2,46 @@
 
 {% block content %}
 {% if on_this_day %}
-    On this day {{ today}}
-    <div class="row">
+    <h2 class="text-center">On this day {{ today}}</h2>
+    <div class="row ml-0 mr-0 mt-2 mb-2">
         {% for movie in on_this_day %}
-        <div class="col-sm-2">
-                <div class="card">
-                 
+            <div class="col-md-2 d-flex align-items-stretch">
+                <div class="card">            
                     <a href="{% url 'movtra:detail' movie.id %}">
-                        <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}"></a>
-                  <div class="section darker" id="box">
+                        <img src="https://image.tmdb.org/t/p/w154{{ movie.poster_path }}">
+                    </a>
+                    <div class="section darker" id="box">
                         <h5 class="card-title">{{movie.date}}</h5>
                         <p class="card-text">{{movie.title}}</p>
-                  </div>
+                    </div>
                 </div>
-              </div>
-        
+            </div>
         {% endfor %}
     </div>
 {% endif %}
-
-<div class="btn-group dropright">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Dropdown button
-    </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="#">Year1</a>
-      <a class="dropdown-item" href="#">Year2</a>
-      <a class="dropdown-item" href="#">Year3</a>
+<div class="row ml-0 mr-0">
+    <div class="btn-group dropright">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Dropdown button
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="#">Year1</a>
+        <a class="dropdown-item" href="#">Year2</a>
+        <a class="dropdown-item" href="#">Year3</a>
+        </div>
     </div>
 </div>
 
-<div class="col-md-4">
-    <h1>{{month}} genres</h1>
-<canvas id="doughnutChart"></canvas>
+<h3>Most watched directors of the month</h3>
+{% for person in mwd %}
+<a href="{% url 'movtra:personDetail' person.person_id %}">{{person.name}}</a>
+<img src="https://image.tmdb.org/t/p/w92{{person.profile_path}}">
+{% endfor %}
+<div class="row ml-0 mr-0">
+    <div class="col-md-4">
+        <h1>{{month}} genres</h1>
+        <canvas id="doughnutChart"></canvas>
+    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 

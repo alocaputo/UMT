@@ -34,14 +34,14 @@ def all(request):
 def upcoming(request):
     upcoming = tmdb_api_wrap.getUpcoming()
     context =  {'results': upcoming,
-                 'type': 0 #it's not a search
+                 'type': 1 # type 1 upcoming/nowplaying
                 }
     return render(request, 'movtra/results.html', context)
 
 def nowplaying(request):
     nowplaying = tmdb_api_wrap.getNowPlaying()
     context = {'results': nowplaying,
-                'type': 0 #it's not a search
+                'type': 1 # type 1 upcoming/nowplaying
                 }
     return render(request, 'movtra/results.html', context)
 
@@ -160,7 +160,7 @@ def results(request, query, page):
         isBack = False
     else:
         isBack = True
-    context = {'query': movieName ,'next_page': int(page)+1, 'isNext': isNext, 'back_page': int(page)-1 ,'isBack': isBack, 'page': page, 'results': results[0] , 'total_pages': total_pages, 'type': 0}
+    context = {'query': movieName ,'next_page': int(page)+1, 'isNext': isNext, 'back_page': int(page)-1 ,'isBack': isBack, 'page': page, 'results': results[0] , 'total_pages': total_pages, 'type': 0} #type 0 search
     return render(request, 'movtra/results.html', context)
 
 
@@ -219,7 +219,7 @@ def addMovie(tmdbID):
                                         character = personData['character'],
                                         credit_id = personData['credit_id'],
                                         gender = int(personData['gender']),
-                                        personID = str(personData['id']),        
+                                        person_id = str(personData['id']),        
                                         name = personData['name'],       
                                         order = int(personData['order']),
                                         profile_path = personData['profile_path'])
@@ -229,7 +229,7 @@ def addMovie(tmdbID):
                                         character = personData['character'],
                                         credit_id = personData['credit_id'],
                                         gender = int(personData['gender']),
-                                        personID = str(personData['id']),        
+                                        person_id = str(personData['id']),        
                                         name = personData['name'],       
                                         order = int(personData['order']),
                                         profile_path = personData['profile_path'])
@@ -256,7 +256,7 @@ def addMovie(tmdbID):
                                         credit_id = personData['credit_id'],
                                         department = personData['department'],
                                         gender = int(personData['gender']),
-                                        personID = str(personData['id']), 
+                                        person_id = str(personData['id']), 
                                         job = personData['job'],       
                                         name = personData['name'],       
                                         profile_path = personData['profile_path'])
@@ -265,7 +265,7 @@ def addMovie(tmdbID):
                                         credit_id = personData['credit_id'],
                                         department = personData['department'],
                                         gender = int(personData['gender']),
-                                        personID = str(personData['id']), 
+                                        person_id = str(personData['id']), 
                                         job = personData['job'],       
                                         name = personData['name'],       
                                         profile_path = personData['profile_path'])
@@ -342,7 +342,7 @@ def updateData(request, tmdbID):
                                         character = personData['character'],
                                         credit_id = personData['credit_id'],
                                         gender = int(personData['gender']),
-                                        personID = str(personData['id']),        
+                                        person_id = str(personData['id']),        
                                         name = personData['name'],       
                                         order = int(personData['order']),
                                         profile_path = personData['profile_path'])
@@ -352,7 +352,7 @@ def updateData(request, tmdbID):
                                     character = personData['character'],
                                     credit_id = personData['credit_id'],
                                     gender = int(personData['gender']),
-                                    personID = str(personData['id']),        
+                                    person_id = str(personData['id']),        
                                     name = personData['name'],       
                                     order = int(personData['order']),
                                     profile_path = personData['profile_path'])
@@ -378,7 +378,7 @@ def updateData(request, tmdbID):
                                     credit_id = personData['credit_id'],
                                         department = personData['department'],
                                         gender = int(personData['gender']),
-                                        personID = str(personData['id']), 
+                                        person_id = str(personData['id']), 
                                         job = personData['job'],       
                                         name = personData['name'],       
                                         profile_path = personData['profile_path'])
@@ -387,7 +387,7 @@ def updateData(request, tmdbID):
                                     credit_id = personData['credit_id'],
                                     department = personData['department'],
                                     gender = int(personData['gender']),
-                                    personID = str(personData['id']), 
+                                    person_id = str(personData['id']), 
                                     job = personData['job'],       
                                     name = personData['name'],       
                                     profile_path = personData['profile_path'])
@@ -423,12 +423,12 @@ def listDetail(request, id):
     if not movies.exists:
         watched_count = 0
     else:
-        watched_count = Movie.objects.raw('select distinct movtra_movie.* , movtra_logentry.id as log_id from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id join movtra_isin on movtra_isin.movie_id=movtra_movie.id where movtra_isin.list_id=' + str(id) + ' group by movtra_movie.id;')
-        w=0
-        for _ in watched_count:
-            w+=1
+        watched_list = Movie.objects.raw('select distinct movtra_movie.* , movtra_logentry.id as log_id from movtra_movie join movtra_logentry on movtra_logentry.movie_id=movtra_movie.id join movtra_isin on movtra_isin.movie_id=movtra_movie.id where movtra_isin.list_id=' + str(id) + ' group by movtra_movie.id;')
+        watched_count =0
+        for _ in watched_list:
+            watched_count+=1
 
-    context = {'movies': movies, 'list': lst ,'total':len(movies), 'watched': len(list(watched_count)), 'logentry': list(watched_count)}
+    context = {'movies': movies, 'list': lst ,'total':len(movies), 'watched': watched_count , 'logentry': list(watched_list)}
     return render(request, 'movtra/listDetail.html', context)
 
 #Import button in list (WIP)
@@ -495,7 +495,7 @@ def addToList(request, id):
     if ' ' in movieName:
         movieName = movieName.replace(' ','+')
     results = tmdb_api_wrap.getMovieByName(movieName,1) #return (results, number of results)
-    context = {'results': results[0] , 'total_pages': results[1], 'list_id': id, 'type': 1} # type 1 list
+    context = {'results': results[0] , 'total_pages': results[1], 'list_id': id, 'type': 2} # type 2 list
     return render(request, 'movtra/results.html', context)
 
 def addMovieToList(request, id):
@@ -597,7 +597,7 @@ def personDetail(request, tmdbID):
     
     raw_watched = Movie.objects.raw("""select distinct movtra_movie.id
                                     from  movtra_workedascrew, movtra_movie
-                                    where  movtra_workedascrew.personID="""+str(tmdbID)+""" and movtra_movie.id=movtra_workedascrew.movie_id""")
+                                    where  movtra_workedascrew.person_id="""+str(tmdbID)+""" and movtra_movie.id=movtra_workedascrew.movie_id""")
     watched = []
     for w in raw_watched:
         watched.append(int(w.id))
@@ -682,7 +682,16 @@ def stats(request):
         g_col[g.name] = "#%06x" % random.randint(0, 0xFFFFFF) # random hex
         ad += g.count * 100 / g_tot
 
-    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col }
+    # Most viewed directors
+    mwd_query = """select *, count() as count
+                    from movtra_logentry as le 
+                    left join movtra_workedascrew wc on le.movie_id=wc.movie_id
+                    where  le.date >= '{}' and le.date <= '{}' and wc.job='Director'
+                    group by wc.person_id
+                    order by count desc
+                """.format(first_day, last_day)
+    mwd_raw = WorkedAsCrew.objects.raw(mwd_query)
+    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw[:5] }
     return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager

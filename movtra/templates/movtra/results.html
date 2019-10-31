@@ -1,41 +1,41 @@
 {% extends 'movtra/layout.html' %}
 
 {% block content %}
-{% if type == 0 %}
-  <h1>Results</h1>
-
-
+{% if type < 2  %}
+  {% if type == 0  %}
+    <h1 class="text-center">Results for: "{{query}}"</h1>
+  {% endif %}
 <div class="container">
-    <div class="col-sm">
-        {% for movie in results %}
-        <a href="{% url 'movtra:detail' movie.id %}"><div class="row">
-            <div class="col-sm-4">
-                <img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster_path }}">
-           </div>
-          <div class="col-sm-4">
-              
-                  <p>{{movie.title}}</p>
+  <div class="list-group list-group-flush">
+    {% for movie in results %}
+    
+        <div class="list-group-item d-flex flex-row bd-highlight">
+           
+            <div class="p-2 bd-highlight">
+                
+              <img  src="https://image.tmdb.org/t/p/w92{{ movie.poster_path }}">
+            </a>
+            </div>
+            <div class="p-2 bd-highlight">
+                <a href="{% url 'movtra:detail' movie.id %}">{{movie.title}}</a>
           </div>
-        </div></a>
-        {% endfor %}
-    </div>
+        
+        </div>
+      
+    {% endfor %}
   </div>
-  <div>
-      <span>Page: {{page}} of {{ total_pages }} </span>
-      {% if isBack %}<a href="{% url 'movtra:results' query back_page %}">back</a>{% endif %}
+</div>
+  {% if type == 0  %}
+    <div id="page-selector" class="d-flex justify-content-center">
+      <span class="text-center">Page: {{page}} of {{ total_pages }}&nbsp;</span>
+      {% if isBack %}<a href="{% url 'movtra:results' query back_page %}">back&nbsp;</a>{% endif %}
       {% if isNext %}<a href="{% url 'movtra:results' query next_page %}">next</a>{% endif %}
+    </div>
+    {% endif %}
   </div>
-  <style>
-    img{
-      height: 20%;
-    }
-    .row{
-      height: 20%;
-    }
-  
-    </style>
+ 
 
-    {% elif type == 1 %}
+    {% elif type == 2 %}
 
     <div class="container">
     <div class="col-sm">

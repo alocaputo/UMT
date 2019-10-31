@@ -1,9 +1,9 @@
 {% extends 'movtra/layout.html' %}
 
 {% block content %}
-<h1 class="center">{{ list.name }}  ({{ watched }}/{{ total }})</h1>
+<h1 class="text-center">{{ list.name }}  ({{ watched }}/{{ total }})</h1>
 
-<div class="row">
+<div class="row ml-0 mr-0">
   <div class="col-sm-4">
     <form action="{% url 'movtra:addToList' list.id %}" method="post">
       {% csrf_token %}
@@ -27,22 +27,21 @@
 
 
 
-<ul>
-{% for m in movies %}
-------------------------------------------------------------------------
-  <li>{{forloop.counter}}: <a href="{% url 'movtra:detail' m.movie.id %}">{{m.movie.title}} ({{ m.movie.release_date|make_list|slice:':-6'|join:'' }})</a> 
-    {% if m.movie in logentry %}
-    watched
-    {% endif %}
-    </p>
-  </li>
-  {% if m.log_id %}
-  m.log_id
-  {% endif %}
-  
-{% endfor %}
+<div class="conatiner">
+  <div class="list-group list-group-flush">
+  {% for m in movies %}
+    <div class="list-group-item d-flex flex-row bd-highlight">
+      {{forloop.counter}}:&nbsp;
+      <a href="{% url 'movtra:detail' m.movie.id %}">{{m.movie.title}} ({{ m.movie.release_date|make_list|slice:':-6'|join:'' }})</a> 
+      {% if m.movie in logentry %}
+        &nbsp;✓
+      {% endif %}
+      </p>
+    </div>
+  {% endfor %}
 
-</ul>
+  </div>
+</div>
 
 <script>
   // Submit post on submit
