@@ -53,6 +53,12 @@ def getMovieByName(movieName, pageNumber):
     url = baseUrl + '/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + str(pageNumber)
 	#+'&year=1967'
     json_r = requests.get(url).json()
+    if 'errors' in json_r:
+        star = json_r['errors'][0]
+        total_pages = [int(s) for s in star.split() if s.isdigit()][0]
+        url = baseUrl + '/search/movie?api_key=' + apikey + '&query=' + movieName +'&page=' + str(total_pages)
+        json_r = requests.get(url).json()
+        
     total_pages =  json_r['total_pages']
     total_results =  json_r['total_results']
     results = json_r['results']
@@ -222,8 +228,10 @@ def searchByYear(title, year):
 	url = 'https://api.themoviedb.org/3/search/movie?api_key=' + apikey +'&query=' + title + '&year=' + year
 	json_r = requests.get(url).json()
 	results = json_r['results']
+	if json_r['total_results'] == 0:
+		results = getMovieByName(title,1)[0]
 	#pprint.pprint(results)
-	return results
+	return results[0]
 
 def letterboxdImport(file):
 	ids = []
@@ -279,11 +287,11 @@ def addToDB(movieID):
 	conn.commit()
 	return None
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
 	#getMovieByName('psycho')
 	#getUpcoming()
 	#getMovieByID(550)
-	getPersonByID(7467)
+	#getPersonByID(7467)
 	#letterboxdImport("/home/theloca95/letterbox/diary.csv")
 	#addToDB(21)
 	#print('done')
@@ -294,3 +302,5 @@ if __name__ == "__main__":
 	#importImdb('./WATCHLIST.csv')
 	#cast = getFilmography(4429)
 	#pprint.pprint(cast)
+	#a = searchByYear('The King of Comedy','1983')
+	#pprint.pprint(a)

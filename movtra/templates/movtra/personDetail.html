@@ -25,14 +25,13 @@
 			<div class="dropdown">
 					<button class="dropbtn btn btn-secondary dropdown-toggle" id="jobs_button">Select job</button>
 					<div class="dropdown-content">
-							{% for job, v in crew_slug.items %}
+							{% for job, v in credits_slug.items %}
 								<a onclick="myFunction({{job}})" class="dropbtn2 dropdown-item">{{job}}</a>
 							{% endfor %}
 					</div>
 			</div> 
-
 			<div id="job_list">
-				{% for job, v in crew_slug.items %}
+				{% for job, v in credits_slug.items %}
 					<div id={{job}} style="display: none;" class=job_type>
 						{% for k, m in v.items %}
 							<a  href="{% url 'movtra:detail' m.id %}" id={{k}}><p>{{m.title}} ({{m.release_date |make_list|slice:':-6'|join:'' }}){% for wm in watched %}{% if wm == m.id %} ✓{% endif %}{% endfor %}&nbsp;</p></a>

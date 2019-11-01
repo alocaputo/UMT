@@ -15,6 +15,7 @@ from itertools import islice
 from datetime import datetime
 from datetime import timedelta
 import random
+
 # Create your views here.
 
 def index(request):
@@ -132,7 +133,6 @@ def logMovie(request):
     return redirect(request.META['HTTP_REFERER'])
 
 
-#TODO: add next page
 def results(request, query, page):
     if page != '':
         page = page
@@ -446,11 +446,11 @@ def importList(request, id):
         print(str(i) + ': ' + str(tmdbID) + ' added')
     return HttpResponseRedirect('../')"""
     #letterboxdImport("/home/theloca95/letterbox/diary.csv")
-    letterboxdImport("C:/Users/thelo/Desktop/diary.csv")
+    letterboxdImport("C:/Users/thelo/Desktop/diary.csv",id)
     return HttpResponseRedirect('../')
 
 #Imports movies from a letterboxd file
-def letterboxdImport(file):
+def letterboxdImport(file, list_id):
     ids = []
     firstline = True
     i = 1
@@ -470,11 +470,14 @@ def letterboxdImport(file):
             if rating == '':
                 rating = None
 
-            movie = tmdb_api_wrap.searchByYear(title,year)[0]
-            print("{}: {}".format(i,movie['id']))
-            addMovie(movie['id'])
-            data = {'tmdbID': movie['id'], 'date': date , 'rating': rating, 'review': ''}
-            LogEntry.addLogEntry(data)
+            movie = tmdb_api_wrap.searchByYear(title,year)
+            if 'total_results' not in movie:
+                movie_id = movie['id']
+                print("{}: {}".format(i,movie_id))
+                addMovie(movie_id)
+                isIn.addShow(movie_id,list_id)
+                data = {'tmdbID': movie_id, 'date': date , 'rating': rating, 'review': ''}
+                LogEntry.addLogEntry(data)
             i=i+1
     return ids
 
@@ -593,17 +596,32 @@ def saveReview(request, tmdbID):
 def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
-    
-    
-    raw_watched = Movie.objects.raw("""select distinct movtra_movie.id
-                                    from  movtra_workedascrew, movtra_movie
-                                    where  movtra_workedascrew.person_id="""+str(tmdbID)+""" and movtra_movie.id=movtra_workedascrew.movie_id""")
+
+    pwatched_query = """select distinct le.*
+                        from movtra_logentry as le
+                        join movtra_workedascast as wct on le.movie_id=wct.movie_id
+                        where wct.person_id ='{0}'
+                        group by le.movie_id
+                        union all
+                        select le.*
+                        from movtra_logentry as le
+                        join movtra_workedascrew as wcw on le.movie_id=wcw.movie_id
+                        where wcw.person_id = '{0}'
+                        group by le.movie_id
+                        """.format(tmdbID)
+
+    pwatched_raw = LogEntry.objects.raw(pwatched_query)
     watched = []
-    for w in raw_watched:
-        watched.append(int(w.id))
+    for w in pwatched_raw:
+        watched.append(int(w.movie_id))
+
     # horrible way to get sorted filmography
+    #credit_list = dict(filmography['crew'].items())
+    #credit_list['Actor'] = dict(filmography['cast'].items())
+    credit_list = {'Actor' : dict(filmography['cast'].items()) }
+    credit_list.update(dict(filmography['crew'].items()))
     s = {}
-    for j, q in filmography['crew'].items():       
+    for j, q in credit_list.items():       
         res = {}
         for k, v in q.items():
             res[v['id']] = v['release_date']
@@ -629,8 +647,9 @@ def personDetail(request, tmdbID):
         s[j] = sps
 
     
-    crew_slug = {k.replace(' ', '_'): v for k, v in s.items()}
-    context = {'person': personData, 'cast': filmography['cast'], 'crew': filmography['crew'], 'crew_slug': crew_slug, 'watched':watched}
+    credits_slug = {k.replace(' ', '_'): v for k, v in s.items()}
+
+    context = {'person': personData, 'crew': filmography['crew'], 'credits_slug': credits_slug, 'watched':watched}
     return render(request, 'movtra/personDetail.html', context)
 
 # Statistics
@@ -654,8 +673,8 @@ def stats(request):
     on_this_day = Movie.objects.raw(on_this_day_query)
     
     # Genre (month) TODO:add month selection
-    first_day = "2017-10-01" #debug
-    last_day = "2017-10-31" #debug
+    first_day = "2017-11-01" #debug
+    last_day = "2017-11-31" #debug
     #first_day = datetime.today().replace(day=1).strftime("%Y-%m-%d")  
     #last_day = getLastDay(datetime.today())
 
@@ -689,6 +708,7 @@ def stats(request):
                     where  le.date >= '{}' and le.date <= '{}' and wc.job='Director'
                     group by wc.person_id
                     order by count desc
+                    limit 5
                 """.format(first_day, last_day)
     mwd_raw = WorkedAsCrew.objects.raw(mwd_query)
 
@@ -698,10 +718,11 @@ def stats(request):
                     where  le.date >= '{}' and le.date <= '{}'
                     group by name
                     order by count desc
+                    limit 5
                 """.format(first_day, last_day)
     mwa_raw = WorkedAsCast.objects.raw(mwa_query)
 
-    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw[:5], 'mwa': mwa_raw[:5] }
+    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw, 'mwa': mwa_raw }
     return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager

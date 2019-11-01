@@ -96,10 +96,15 @@ class isIn(models.Model):
 		return self.list.name + " | " + self.movie.title
 
 	def addShow(movieID, listID):
-		isin = isIn()
-		isin.movie = Movie.objects.get(id=movieID)
-		isin.list = List.objects.get(id=listID)
-		isin.save()
+		try:
+			m = Movie.objects.get(id=movieID)
+			l = List.objects.get(id=listID)
+			lst = isIn.objects.get(movie=m, list=l)
+		except isIn.DoesNotExist:
+			isin = isIn()
+			isin.movie = m
+			isin.list = l
+			isin.save()
 
 class Genres(models.Model):
 	id = models.IntegerField(primary_key=True)
@@ -315,6 +320,7 @@ class LogEntry(models.Model):
 			return self.date.strftime('%d/%m/%Y') + " | " + self.movie.title + " | " +  str(self.rating)
 		else:
 			return "No date available | " + self.movie.title + " | " + str(self.rating)
+			
 	def addLogEntry(data):
 		newLogEntry = LogEntry()
 		newLogEntry.movie = Movie.objects.get(id=data['tmdbID'])
