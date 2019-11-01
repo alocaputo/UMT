@@ -12,9 +12,12 @@ import urllib.request
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
+from pathlib import Path
 
 baseUrl = 'https://api.themoviedb.org/3'
-dotenv_path = join(dirname(__file__), '.env')
+#dotenv_path = join(dirname(__file__), '.env')
+current_path = Path(join(dirname(__file__)))
+dotenv_path = join(current_path.parent.parent, '.env')
 load_dotenv(dotenv_path)
 apikey = os.getenv('APIKEY')
 
@@ -304,3 +307,5 @@ def addToDB(movieID):
 	#pprint.pprint(cast)
 	#a = searchByYear('The King of Comedy','1983')
 	#pprint.pprint(a)
+	path = Path(join(dirname(__file__)))
+	dotensv_path = join(path.parent.parent, '.env')
