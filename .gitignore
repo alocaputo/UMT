@@ -1,4 +1,4 @@
-
+.env
 movtra/utils/.env
 movtra/utils/*.csv
 movtra/utils/__pycache__
