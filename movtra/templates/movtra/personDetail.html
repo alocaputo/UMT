@@ -1,0 +1,106 @@
+{% extends 'movtra/layout.html' %}
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-3">
+			<fieldset>
+				<h3>{{ person.name }} </h3>
+				<img src="https://image.tmdb.org/t/p/w300{{person.profile_path }}">
+				<p>Birthday: {{person.birthday}}</p>
+				<p>Place of Birth: {{person.place_of_birth}}</p>
+			</fieldset>
+		</div>
+	
+	
+		<div class="col-sm-6 ">
+			<p id="overview">{{person.biography}}</p>
+		</div>
+	
+		<div class="col-sm-3 ">
+			{% for movie in watched %}{{movie.id}}{% endfor %}
+
+			<div class="dropdown">
+					<button class="dropbtn btn btn-secondary dropdown-toggle" id="jobs_button">Select job</button>
+					<div class="dropdown-content">
+							{% for job, v in credits_slug.items %}
+								<a onclick="myFunction({{job}})" class="dropbtn2 dropdown-item">{{job}}</a>
+							{% endfor %}
+					</div>
+			</div> 
+			<div id="job_list">
+				{% for job, v in credits_slug.items %}
+					<div id={{job}} style="display: none;" class=job_type>
+						{% for k, m in v.items %}
+							<a  href="{% url 'movtra:detail' m.id %}" id={{k}}><p>{{m.title}} ({{m.release_date |make_list|slice:':-6'|join:'' }}){% for wm in watched %}{% if wm == m.id %} ✓{% endif %}{% endfor %}&nbsp;</p></a>
+						{% endfor %}
+					</div>
+				{% endfor %}
+			</div>
+
+		</div>	
+	</div>
+</div>
+
+<style>
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+
+img{
+	height: 300px;
+}
+
+#overview{
+	margin-top: 100px;
+}
+
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+
+</style>
+
+<script>
+function myFunction(y) {
+	var x = document.getElementById(y);
+	var job_type = document.getElementsByClassName("job_type");
+	for (var i=0; i< job_type.length; i++){
+		job_type[i].style.display = "none";
+	}
+	
+	var jb = document.getElementById('jobs_button');
+	y.style.display = "block";
+	jb.innerHTML=y.id;
+}
+</script>
+{% endblock %}

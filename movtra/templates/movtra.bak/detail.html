@@ -1,0 +1,134 @@
+ {% extends 'movtra/layout.html' %}
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+
+<div class="row">
+	<div class="col s4">
+		<h3>{{ movie.title }} ({{movie.year}})</h>
+		<h5>{{movie.tagline}}</h5>
+		<!--<img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster }}" height="50%" />-->
+		<!-- <img src="{{ movie.photo.url }}" height="420"> -->
+
+		{% load static %} 
+		<!--<img src="{% static "/movtra/{{movie.title}}" %}"/> -->
+		{% static "" as baseUrl %}
+		<img src="{{ baseUrl }}movtra{{movie.poster}}" height="50%"></img>
+		<p>Director: {{movie.director}}</p>
+		<p>Runtime:  {{movie.runtime}}</p>
+		<p>Genres: {{movie.genre|make_list|slice:':-2'|join:''}}</p>
+	</div>
+	<div class="col s6 ">
+		<div class="valign-wrapper"><p>Overview: {{movie.overview}}</p></div>
+		<fieldset class="rating">
+					<input type="radio" id="star10" name="rating" value="10" /><label class = "full" for="star10" title="Awesome - 10 stars"></label>
+					<input type="radio" id="star9" name="rating" value="9" /><label class="full" for="star9" title="Pretty good - 9 stars"></label>
+					<input type="radio" id="star8" name="rating" value="8" /><label class = "full" for="star8" title="Pretty good - 8 stars"></label>
+					<input type="radio" id="star7" name="rating" value="7" /><label class="full" for="star7" title="Meh - 7 stars"></label>
+					<input type="radio" id="star6" name="rating" value="6" /><label class = "full" for="star6" title="Meh - 6 stars"></label>
+					<input type="radio" id="star5" name="rating" value="5" /><label class="full" for="star5" title="Kinda bad - 5 stars"></label>
+					<input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Kinda bad - 4 stars"></label>
+					<input type="radio" id="star3" name="rating" value="3" /><label class="full" for="star3" title="Meh - 3 stars"></label>
+					<input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Sucks big time - 2 star"></label>
+					<input type="radio" id="star1" name="rating" value="1" /><label class="full checked" for="star1" title="Sucks big time - 1 stars"></label>
+			</fieldset>
+		<h3>Review:</h3>
+		<form action="{% url 'movtra:editReview' movie.tmdbID %}" method="post">{% csrf_token %}
+		<input type="submit" value="edit" name="edit">
+		</form>
+		<p>{{movie.review}}</p>
+		{% if isIn %}
+		<h4>Lists:</h4>
+		<ul>
+			{% for isin in isIn %}
+			<li><a href="{% url 'movtra:listDetail' isin.list.id %}">{{isin.list.name}}</a></li>
+			{% endfor %}
+		</ul>
+		{% else %}
+		{% endif %}
+	</div>
+	<div class="col s2 center align-center">
+		<div class="switch" >
+			<form action="{% url 'movtra:seen' %}" method="post">{% csrf_token %}
+				<p>
+				<input type="hidden" name="seen" value="{{movie.tmdbID}}">
+			Seen?: {% if movie.status_watched == True %} 
+			<label>
+				<input class="filled-in checkbox-orange" type="checkbox" value="{{movie.tmdbID}}" id="seen" onclick="this.form.submit();" checked><span class="lever"></label>
+			{% else %}
+			<label>
+				<input  type="checkbox" value="{{movie.tmdbID}}" id="seen" onclick="this.form.submit();"><span class="lever"></label>
+			{% endif %}
+		</p>
+			</form>
+			<p>tmdb: {{movie.rating|make_list|slice:':-2'|join:''}}</p>
+			<p>mine :{{movie.myRating|make_list|slice:':-2'|join:''}}</p>
+		</div>
+	</div>
+</div>
+
+<style>
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+fieldset, label { margin: 0; padding: 0;}
+/* Materialized edited*/
+[type="radio"]:not(:checked)+label:before,[type="radio"]:not(:checked)+label:after {
+ border:0px solid #5a5a5a
+}
+[type="radio"]+label:before,[type="radio"]+label:after {
+ content:'';
+ position:absolute;
+ left:0;
+ top:0;
+ margin:4px;
+ width:6px;
+ display: none;
+ height:16px;
+ z-index:0;
+ transition:.28s ease
+}
+[type="radio"]:checked+label:before {
+ border:0px solid transparent
+}
+
+
+
+/****** Style Star Rating Widget *****/
+
+.rating { 
+  border: none;
+  float: left;
+}
+
+.rating > input { display: none; } 
+.rating > label:before { 
+  margin: 5px;
+  font-size: 1.25em;
+  font-family: FontAwesome;
+  display: inline-block;
+  content: "\f005";
+}
+
+.rating > label { 
+  color: #ddd; 
+ float: right; 
+}
+
+/***** CSS Magic to Highlight Stars on Hover *****/
+
+.rating > input:checked ~ label, /* show gold star when clicked */
+.rating:not(:checked) > label:hover, /* hover current star */
+.rating:not(:checked) > label:hover ~ label { color: #FFD700;  } /* hover previous stars in list */
+
+.rating > input:checked + label:hover, /* hover current star when changing rating */
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+.rating > input:checked ~ label:hover ~ label { color: #FFED85;  } 
+
+.checked { 
+	display: none;
+	color: #FFD700;  }
+
+</style>
+{% endblock %}

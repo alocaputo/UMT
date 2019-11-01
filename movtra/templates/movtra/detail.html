@@ -1,0 +1,228 @@
+ {% extends 'movtra/layout.html' %}
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-3">
+			<fieldset>
+				<h5>{{movie.tagline}}</h5>
+				<img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}">
+				
+				{% if local %}
+				<p>Director(s):
+					{% for k, v in directors.items %}
+						<a href="{% url 'movtra:personDetail' v.id %}">{{v.name}}</a>
+					{% endfor %}
+				</p>
+				<p>Genres: 
+					{% for genre in genres %}
+						{{genre.name}}
+					{% endfor %}</p>
+				{% else %}
+				<p>Director(s): 
+						{% for k, v in directors.items %}
+							<a href="{% url 'movtra:personDetail' v.id %}">{{v.name}}</a>
+						{% endfor %}
+					</p>
+				<p>Genres: {%for g in genres%}{{g.name}} {% endfor%}</p>
+				
+				{% endif %}
+				
+				<p>Runtime:  {{movie.runtime}} min</p>
+				
+				<p>tmdb: {{movie.vote_average}} [{{movie.vote_count}}]</p>
+				
+				<p>Release date: {{movie.release_date}}</p>
+				{% if local %}
+				<div>
+					<form action="{% url 'movtra:updateData' movie.id %}" method="post" class="pr-0">
+						{% csrf_token %}
+						<div>
+						<input class="btn btn-secondary" type="submit" name="update_data" value="Update data">
+						<input type="hidden" name="movieID" value="{{ list_id }}">
+					</div>
+					</form>
+				</div>
+				{% endif %}
+			</fieldset>
+		</div>
+
+		<div class="col-sm-9">
+			<div class="row mb-8">
+				<h3>{{ movie.title }} ({{ movie.release_date|make_list|slice:':-6'|join:'' }})</h3>
+			</div>
+			<div class="row">
+				<div class="col-sm-8">
+					<p id="overview">{{movie.overview}}</p>
+					<div id="composer" class="composer-content">
+						<div id="composeheader">
+							{{movie.title}} 	(<a onclick="myFunction()">X</a>)
+						</div>
+						<form action="{% url 'movtra:logMovie' %}" method="post">{% csrf_token %}
+							<input type="hidden" name="tmdbID" value="{{movie.id}}">
+							<div id="to">
+								Date <input type="date" name="bday">
+							</div>
+							<div id="object">
+								<p>Rating</p>
+								<fieldset class="rating">
+									<input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+									<input type="radio" id="star4half" name="rating" value="4.5" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+									<input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+									<input type="radio" id="star3half" name="rating" value="3.5" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+									<input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+									<input type="radio" id="star2half" name="rating" value="2.5" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+									<input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+									<input type="radio" id="star1half" name="rating" value="1.5" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+									<input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+									<input type="radio" id="starhalf" name="rating" value="0.5" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>		
+								</fieldset>
+							</div>
+							<div>
+								<textarea rows="8" cols="50" name="review"></textarea>
+							</div>
+							<div id="messageBody">
+								<input type="submit" value="Log movie"> 
+							</div>
+						</form>
+					</div>
+					<fieldset>
+							<h3>Diary:</h3>
+							{% for k, entry in diary.items %}
+							<p>{{forloop.counter}}) 
+								{% if entry.date %}
+									{{entry.date}}
+								{% else %} 
+									No date available 
+								{% endif %} 
+								| <i class="fa fa-star"></i> 
+								{% if entry.rating %}
+									{{entry.rating}}
+								{% else %} 
+									No rating available 
+								{% endif %} 
+								(<a href="{% url 'movtra:removeDiaryEntry' movie.id entry.id %}">delete</a>)
+								(<a onclick="myFunction()">sa</a>)
+
+							</p>
+							{% if entry.review %}
+							<p>↳{{entry.review}}</p>
+							{% endif %}
+							{% endfor %}
+					</fieldset>
+				</div>
+				<div class="col-sm-2">
+					<div class="row mb-4">
+						<div class="composer">
+							<button class="btn btn-primary" onclick="myFunction()" class="dropbtn">Log this movie</button>
+						</div>
+					</div>
+					{% if lists %}
+					<div class="row">
+						<h4>Lists:</h4>
+					</div>
+					<div class="row">
+						<ul>
+							{% for k,v in lists.items %}
+							<li><a href="{% url 'movtra:listDetail' v.id %}">{{v.name}}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+					{% else %}
+					{% endif %}
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+<style>
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+
+img{
+	height: 300px;
+}
+/*
+#overview{
+	margin-top: 100px;
+}*/
+/*
+.input-group{
+	position: absolute;
+}
+*/
+
+
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+/*.rating, label { margin: 0; padding: 0; }
+
+h1 { font-size: 1.5em; margin: 10px; }
+
+/****** Style Star Rating Widget *****/
+
+.rating { 
+  border: none;
+  float: left;
+}
+
+.rating > input { display: none; } 
+.rating > label:before { 
+  margin: 5px;
+  font-size: 1.25em;
+  font-family: FontAwesome;
+  display: inline-block;
+  content: "\f005";
+}
+
+.rating > .half:before { 
+  content: "\f089";
+  position: absolute;
+}
+
+.rating > label { 
+  color: #ddd; 
+ float: right; 
+}
+
+.composer-content > fieldset, label { margin: 0; padding: 0; }
+/***** CSS Magic to Highlight Stars on Hover *****/
+
+.rating > input:checked ~ label, /* show gold star when clicked */
+.rating:not(:checked) > label:hover, /* hover current star */
+.rating:not(:checked) > label:hover ~ label { color: #FFD700;  } /* hover previous stars in list */
+
+.rating > input:checked + label:hover, /* hover current star when changing rating */
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+.rating > input:checked ~ label:hover ~ label { color: #FFED85;  } 
+
+
+
+.composer-content{
+  color: black;
+  background-color: #a64dff;
+}
+.composer-content {
+    display: none;
+    position: absolute;
+    min-width: 560px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.show {display:block;}
+</style>
+<script>
+	function updateTextInput(val) {
+		$('#uu').text(val)
+		$('#subrating').submit();
+        }
+		function myFunction() {
+document.getElementById("composer").classList.toggle("show");
+}
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+<h1>Lists</h1>
+<div class="row ml-0 mr-0">
+  <form action="{% url 'movtra:newList' %}" method="post">
+    {% csrf_token %}
+    <div class="input-group mb-3 pl-4">
+      <input type="text" class="form-control" name="listTitle"/>
+      <div class="input-group-append">
+        <button  type="submit" vaule="Create list" class="input-group-text">Create list</button>
+      </div>
+    </div>
+  </form>
+    
+  <form action="{% url 'movtra:editLists' %}" method="post" class="pl-4">
+    {% csrf_token %}
+    <input type="submit" name="edit" value="edit" class="btn btn-secondary">
+</form>
+</div>
+
+<div class="conatiner">
+    <div class="list-group list-group-flush">
+    {% for l in list %}
+    <div class="list-group-item d-flex flex-row bd-highlight"><a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></div>
+    {% endfor %}
+    </div>
+</div>
+<style>
+  td {
+    height: 20px;
+  }
+  
+</style>
+{% endblock %}

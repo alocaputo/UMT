@@ -1,0 +1,30 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+	{% if latest_movies_list %}
+	<div class="row">	
+		{% for movie in latest_movies_list %}
+    <div class="col s2">
+      <div class="card {% if movie.status_watched %} green {% else %} red {%endif%}">
+        <div class="card-image">
+          <!--<img src="https://image.tmdb.org/t/p/w600_and_h900_bestv2{{ movie.poster }}" height="40%">-->
+          {% load static %} 
+          {% static "" as baseUrl %}
+          <img src="{{ baseUrl }}movtra{{movie.poster}}" height="40%">
+          <span class="card-title">{{movie.year|make_list|slice:':25'|join:''}}</span>
+        </div>
+        <div class="card-content">
+          <p>{{movie.title}}</p>
+        </div>
+        <div class="card-action">
+          <a href="{% url 'movtra:detail' movie.tmdbID %}">MOVIE INFO</a>
+        </div>
+      </div>
+    </div>
+  
+		{% endfor %}
+		</div>
+	{% else %}
+		<p>No movies are available.</p>
+	{% endif %}
+{% endblock %}

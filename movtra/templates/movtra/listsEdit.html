@@ -1,0 +1,59 @@
+{% extends 'movtra/layout.html' %}
+
+{% block content %}
+<h1>Lists</h1>
+<div class="row ml-0 mr-0">
+  <form action="{% url 'movtra:newList' %}" method="post">
+    {% csrf_token %}
+    <div class="input-group mb-3 pl-4">
+      <input type="text" class="form-control" name="listTitle">
+      <div class="input-group-append">
+        <button type="submit" vaule="Create list" class="input-group-text">Create list</button>
+      </div>
+    </div>
+  </form>
+
+  <form action="/lists/" method="post" class="pl-4">
+    {% csrf_token %}
+    <input type="submit" name="edit" value="edit" class="btn btn-secondary">
+</form>
+</div>
+<div class="continer">
+  <div class="list-group list-group-flush">
+      {% for l in list %}
+      <div id="list{{l.id}}" class="list-group-item d-flex flex-row bd-highlight">
+      <div class="p-2 bd-highlight" id="list{{l.id}}">[<a class="removeBTN" id="movie{{l.id}}" href="#" data-listid="{{l.id}}">X</a>] <a href="{% url 'movtra:listDetail' l.id %}">{{l.name}}</a></div>
+      </div>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<style>
+  td {
+    height: 20px;
+  }
+
+</style>
+
+<script type="text/javascript">
+  $('.removeBTN').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  var movid, listid;
+  listid = $(this).attr("data-listid");
+  $.ajax(
+  {
+      type:"GET",
+      url: "/removeListsGET",
+      data:{
+               "list_id": listid
+      },
+      success: function( data ) 
+      { 
+        $( '#list'+ listid ).remove();
+      }
+   });
+  });
+
+</script>
+{% endblock %}
