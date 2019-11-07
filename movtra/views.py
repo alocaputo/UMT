@@ -132,6 +132,11 @@ def logMovie(request):
         LogEntry.addLogEntry(data)
     return redirect(request.META['HTTP_REFERER'])
 
+def search(request):
+    query = ''
+    if request.method == 'POST':
+            query = request.POST.get('searchTitle')
+    return redirect("/results/"+query+"/1")
 
 def results(request, query, page):
     if page != '':
@@ -597,17 +602,18 @@ def personDetail(request, tmdbID):
     personData = tmdb_api_wrap.getPersonByID(tmdbID)
     filmography = tmdb_api_wrap.getFilmography(tmdbID)
 
-    pwatched_query = """select distinct le.*
-                        from movtra_logentry as le
-                        join movtra_workedascast as wct on le.movie_id=wct.movie_id
-                        where wct.person_id ='{0}'
-                        group by le.movie_id
-                        union all
-                        select le.*
-                        from movtra_logentry as le
-                        join movtra_workedascrew as wcw on le.movie_id=wcw.movie_id
-                        where wcw.person_id = '{0}'
-                        group by le.movie_id
+    pwatched_query = """select  distinct movie_id, *
+                        from	(select distinct le.*
+                            from movtra_logentry as le
+                            join movtra_workedascast as wct on le.movie_id=wct.movie_id
+                            where wct.person_id ='{0}'
+                            group by le.movie_id
+                            union all
+                            select distinct le.*
+                            from movtra_logentry as le
+                            join movtra_workedascrew as wcw on le.movie_id=wcw.movie_id
+                            where wcw.person_id = '{0}'
+                            group by le.movie_id)
                         """.format(tmdbID)
 
     pwatched_raw = LogEntry.objects.raw(pwatched_query)
@@ -662,6 +668,17 @@ def getLastDay(any_day):
     return (next_month - timedelta(days=next_month.day)).strftime("%Y-%m-%d")
 
 def stats(request):
+    years_query = """select *
+                    from movtra_logentry as le 
+                    """
+    years_raw = LogEntry.objects.raw(years_query)
+    years = []
+    for log in years_raw:
+        year = log.date.strftime("%Y")
+        if year not in years:
+            years.append(year)
+
+    print(years)
     # On this date
     today = datetime.today().strftime("%m-%d")
     month = datetime.today().strftime("%B")
@@ -722,7 +739,7 @@ def stats(request):
                 """.format(first_day, last_day)
     mwa_raw = WorkedAsCast.objects.raw(mwa_query)
 
-    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw, 'mwa': mwa_raw }
+    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw, 'mwa': mwa_raw, 'years': years }
     return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager

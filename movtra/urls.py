@@ -32,6 +32,7 @@ urlpatterns = [
 	path('lists/<int:id>/addToList/addMovieToList', views.addMovieToList, name='addMovieToList'),
 	path('lists/newList', views.newList, name='newList'),
 	url(r'^logMovie', views.logMovie, name='logMovie'),
+	path('search', views.search, name='search'),
 	path('results/<str:query>/<int:page>', views.results, name='results'),
 
 ]

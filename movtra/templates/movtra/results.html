@@ -3,7 +3,11 @@
 {% block content %}
 {% if type < 2  %}
   {% if type == 0  %}
+    {% if total_pages == 0  %}
+    <h1 class="text-center">No results for: "{{query}}"</h1>
+    {% else %}
     <h1 class="text-center">Results for: "{{query}}"</h1>
+    {% endif %}
   {% endif %}
 <div class="container">
   <div class="list-group list-group-flush">
@@ -26,11 +30,13 @@
   </div>
 </div>
   {% if type == 0  %}
+  {% if total_pages != 0  %}
     <div id="page-selector" class="d-flex justify-content-center">
-      <span class="text-center">Page: {{page}} of {{ total_pages }}&nbsp;</span>
+      <span class="text-center">Page: {{page}} of {{ total_pages }}&nbsp;</span>  
       {% if isBack %}<a href="{% url 'movtra:results' query back_page %}">back&nbsp;</a>{% endif %}
       {% if isNext %}<a href="{% url 'movtra:results' query next_page %}">next</a>{% endif %}
     </div>
+    {% endif %}
     {% endif %}
   </div>
  

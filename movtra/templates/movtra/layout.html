@@ -35,7 +35,7 @@
           <a class="nav-link" href="/stats">Stats</a>
         </li>
       </ul>
-      <form  id="form1" action="{% url 'movtra:results' 'a' 1 %}" method="post" class="form-inline my-2 my-lg-0">
+      <form  id="form1" action="{% url 'movtra:search' %}" method="post" class="form-inline my-2 my-lg-0">
         {% csrf_token %}
         <input id="search" name="searchTitle" type="search" placeholder="Search" class="form-control mr-sm-2"></input>
       </form>

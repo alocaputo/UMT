@@ -25,9 +25,9 @@
         Dropdown button
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="#">Year1</a>
-        <a class="dropdown-item" href="#">Year2</a>
-        <a class="dropdown-item" href="#">Year3</a>
+            {% for year in years %}
+                <a class="dropdown-item" href="#">{{year}}</a>
+            {% endfor %}
         </div>
     </div>
 </div>
