@@ -63,8 +63,10 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<div id="datamap" style="position: relative; width: 80%; max-height: 450px;"></div>
 
+<!-- Pie Chart -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 <script>
 //pie
 
@@ -96,5 +98,80 @@ options: {
 responsive: true
 }
 });
+</script>
+
+<!-- DataMaps -->
+<style>
+    #datamap { border:1px dotted blue; width: 700px; height: 475px; position: relative; }
+</style>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script>
+
+<script>
+  // example data from server
+  var series = [
+      {% for k, v in pdc.items %}
+      ["{{k}}",{{v}}],
+      {% endfor %}
+      ];
+
+
+  // Datamaps expect data in format:
+  // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
+  //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
+  var dataset = {};
+ 
+  // We need to colorize every country based on "numberOfWhatever"
+  // colors should be uniq for every value.
+  // For this purpose we create palette(using min/max series-value)
+  var onlyValues = series.map(function(obj){ return obj[1]; });
+  var minValue = Math.min.apply(null, onlyValues),
+          maxValue = Math.max.apply(null, onlyValues);
+
+  // create color palette function
+  // color can be whatever you wish
+  var paletteScale = d3.scale.linear()
+          .domain([minValue,maxValue])
+          .range(["#a2f28e","#097002"]); // blue color
+
+  // fill dataset in appropriate format
+  series.forEach(function(item){ //
+      // item example value ["USA", 70]
+      var iso = item[0],
+              value = item[1];
+      dataset[iso] = { numberOfThings: value, fillColor: paletteScale(value) };
+  });
+
+  // render map
+  new Datamap({
+      scope: 'world',
+      element: document.getElementById('datamap'),
+      projection: 'mercator', // big world map
+      // countries don't listed in dataset will be painted with this color
+      fills: { defaultFill: '#303c44' },
+      data: dataset,
+      geographyConfig: {
+          borderColor: '#DEDEDE',
+          highlightBorderWidth: 2,
+          // don't change color on mouse hover
+          highlightFillColor: function(geo) {
+              return geo['fillColor'] || '#fc8302';
+          },
+          // only change border
+          highlightBorderColor: '#B7B7B7',
+          // show desired information in tooltip
+          popupTemplate: function(geo, data) {
+              // don't show tooltip if country don't present in dataset
+              if (!data) { return ; }
+              // tooltip content
+              return ['<div class="hoverinfo">',
+                  '<strong>', geo.properties.name, '</strong>: ',
+                   data.numberOfThings, ' film',
+                  '</div>'].join('');
+          }
+      }
+  });
 </script>
 {% endblock %}

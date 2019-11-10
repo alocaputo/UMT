@@ -15,6 +15,7 @@ from itertools import islice
 from datetime import datetime
 from datetime import timedelta
 import random
+import pycountry
 
 # Create your views here.
 
@@ -729,6 +730,7 @@ def stats(request):
                 """.format(first_day, last_day)
     mwd_raw = WorkedAsCrew.objects.raw(mwd_query)
 
+    # Most viewed actors
     mwa_query = """select *, count() as count
                     from movtra_logentry as le 
                     left join movtra_workedascast wc on le.movie_id=wc.movie_id
@@ -739,7 +741,26 @@ def stats(request):
                 """.format(first_day, last_day)
     mwa_raw = WorkedAsCast.objects.raw(mwa_query)
 
-    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw, 'mwa': mwa_raw, 'years': years }
+    # Production Companies
+    pdc_query ="""select *, count() as count
+                from movtra_logentry as le 
+                left join movtra_productioncountry pc on le.movie_id=pc.movie_id
+                where  le.date >= '{}' and le.date <= '{}' and pc.movie_id is not NULL
+                group by pc.country_id
+                """.format(first_day, last_day)
+
+    pdc_raw = LogEntry.objects.raw(pdc_query)
+    countries = {}
+    for country in pycountry.countries:
+        countries[country.alpha_2] = country.alpha_3
+
+    pdc_dict = {}
+    for pc in pdc_raw:
+        country_alpha2 = countries[pc.country_id]
+        pdc_dict[country_alpha2] = pc.count
+
+    pprint.pprint(pdc_dict)
+    context = {'on_this_day': on_this_day, 'month': month, 'today': today, 'genre': genre, 'g_col': g_col, 'mwd': mwd_raw, 'mwa': mwa_raw, 'years': years, 'pdc': pdc_dict }
     return render(request, 'movtra/stats.html', context)
 
 #TODO cache manager
