@@ -691,8 +691,8 @@ def stats(request):
     on_this_day = Movie.objects.raw(on_this_day_query)
     
     # Genre (month) TODO:add month selection
-    first_day = "2017-11-01" #debug
-    last_day = "2017-11-31" #debug
+    first_day = "2017-00-01" #debug
+    last_day = "2017-12-31" #debug
     #first_day = datetime.today().replace(day=1).strftime("%Y-%m-%d")  
     #last_day = getLastDay(datetime.today())
 
